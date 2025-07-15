@@ -25,6 +25,12 @@ public class UserRepo(BlogContext context) : IUserRepo
                throw new NullReferenceException();
     }
     
+    public async Task<List<User>> GetByUsername(string username)
+    {
+        return await context.Users.Where(u => u.Username == username).ToListAsync() ??
+               throw new NullReferenceException();
+    }
+    
     public async Task<List<User>> GetByUsernameUncapitalized(string username)
     {
         return await context.Users.Where(u => u.Username.ToLower() == username).ToListAsync() ??
