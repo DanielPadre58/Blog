@@ -1,6 +1,9 @@
-﻿namespace Blog.Persistence.Repositories;
+﻿using Blog.Domain.Entities;
+using Blog.Persistence.DbContext;
 
-public class UserRepo : IUserRepo
+namespace Blog.Persistence.Repositories;
+
+public class UserRepo(BlogContext context) : IUserRepo
 {
     
 }
