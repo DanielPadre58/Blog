@@ -14,4 +14,10 @@ public class UserController(IUserService service)
     {
         return service.Create(user)!.Result;
     }
+    
+    [HttpGet]
+    public ResponseModel<User> GetUserById([FromQuery] int id)
+    {
+        return service.GetById(id)!.Result;
+    }
 }

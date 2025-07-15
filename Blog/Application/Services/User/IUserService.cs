@@ -6,4 +6,5 @@ namespace Blog.Application.Services.User;
 public interface IUserService
 {
     public Task<ResponseModel<Domain.Entities.User>>? Create(UserCreationDto user);
+    public Task<ResponseModel<Domain.Entities.User>>? GetById(int id);
 }
