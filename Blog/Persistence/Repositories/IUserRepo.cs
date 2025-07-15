@@ -5,5 +5,6 @@ namespace Blog.Persistence.Repositories;
 public interface IUserRepo
 {
     public Task Create(User user);
+    public Task Delete(int id);
     public Task<User> GetById(int id);
 }

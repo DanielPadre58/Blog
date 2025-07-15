@@ -33,6 +33,25 @@ public class UserService(IUserRepo repository) : IUserService
 
         return response;
     }
+    
+    public async Task<ResponseModel<Domain.Entities.User>> DeleteById(int userId)
+    {
+        var response = new ResponseModel<Domain.Entities.User>();
+        try
+        {
+            await repository.Delete(userId);
+
+            response.Status = HttpStatusCode.OK;
+            response.Message = "User deleted";
+        }
+        catch (Exception ex)
+        {
+            response.Status = HttpStatusCode.BadRequest;
+            response.Message = $"Error deleting user: {ex.Message}";
+        }
+
+        return response;
+    }
 
     public async Task<ResponseModel<Domain.Entities.User>> GetById(int userId)
     {

@@ -15,6 +15,12 @@ public class UserController(IUserService service)
         return service.Create(user)!.Result;
     }
     
+    [HttpDelete]
+    public ResponseModel<User> DeleteUserById([FromQuery] int id)
+    {
+        return service.DeleteById(id)!.Result;
+    }
+    
     [HttpGet]
     public ResponseModel<User> GetUserById([FromQuery] int id)
     {

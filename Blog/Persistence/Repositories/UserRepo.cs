@@ -12,6 +12,13 @@ public class UserRepo(BlogContext context) : IUserRepo
         await context.SaveChangesAsync();
     }
 
+    public async Task Delete(int id)
+    {
+        await context.Users
+            .Where(u => u.Id == id)
+            .ExecuteDeleteAsync();
+    }
+
     public async Task<User> GetById(int id)
     {
         return await context.Users.FirstOrDefaultAsync(u => u.Id == id) ??
