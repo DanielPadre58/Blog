@@ -1,3 +1,4 @@
+using Blog.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -7,6 +8,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo() { Title = "Blog API", Version = "v1" });
+});
+
+builder.Services.AddDbContext<BlogContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 builder.Services.AddControllers();
