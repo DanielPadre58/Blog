@@ -1,6 +1,9 @@
 using Blog.Application.Services.User;
 using Blog.Persistence.DbContext;
 using Blog.Persistence.Repositories;
+using Blog.Persistence.Repositories.Posts;
+using Blog.Persistence.Repositories.Users;
+using Blog.Persistence.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -21,6 +24,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPostRepo, PostRepo>();
 
 var app = builder.Build();
 

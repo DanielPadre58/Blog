@@ -2,6 +2,7 @@
 using Blog.Api;
 using Blog.Application.Dtos.User;
 using Blog.Persistence.Repositories;
+using Blog.Persistence.Repositories.Users;
 
 namespace Blog.Application.Services.User;
 
