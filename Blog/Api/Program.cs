@@ -1,4 +1,4 @@
-using Blog.Infrastructure;
+using Blog.Application.Services.User;
 using Blog.Persistence.DbContext;
 using Blog.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +33,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+app.MapControllers();
 
 app.Run();
