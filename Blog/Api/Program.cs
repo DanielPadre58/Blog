@@ -1,3 +1,4 @@
+using Blog.Infrastructure;
 using Blog.Persistence.DbContext;
 using Blog.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ builder.Services.AddDbContext<BlogContext>(options =>
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
