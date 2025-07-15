@@ -20,10 +20,32 @@ public class UserController(IUserService service)
     {
         return service.DeleteById(id)!.Result;
     }
-    
+
     [HttpGet]
-    public ResponseModel<User> GetUserById([FromQuery] int id)
+    public ResponseModel<User> GetUser([FromQuery] int? id, [FromQuery] string? username = null)
     {
-        return service.GetById(id)!.Result;
+        if (username != null && id.HasValue)
+        {
+            var response = new ResponseModel<User>
+            {
+                Status = System.Net.HttpStatusCode.BadRequest,
+                Message = "Please provide either id or username, not both."
+            };
+            
+            return response;
+        }
+        
+        if(username == null && !id.HasValue)
+        {
+            var response = new ResponseModel<User>
+            {
+                Status = System.Net.HttpStatusCode.BadRequest,
+                Message = "Either id or username must be provided."
+            };
+            
+            return response;
+        }
+        
+        return username != null ? service.GetByUsername(username)!.Result : service.GetById(id!.Value)!.Result;
     }
 }

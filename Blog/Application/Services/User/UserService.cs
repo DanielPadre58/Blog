@@ -77,4 +77,29 @@ public class UserService(IUserRepo repository) : IUserService
 
         return response;
     }
+    
+    public async Task<ResponseModel<Domain.Entities.User>> GetByUsername(string username)
+    {
+        var response = new ResponseModel<Domain.Entities.User>();
+        try
+        {
+            var users = await repository.GetByUsernameUncapitalized(username.ToLower());
+
+            response.Status = HttpStatusCode.OK;
+            response.Message = "User(s) retrieved successfully";
+            response.Data = users;
+        }
+        catch (NullReferenceException ex)
+        {
+            response.Status = HttpStatusCode.NotFound;
+            response.Message = $"No user found with username {username}, or  similar";
+        }
+        catch (Exception ex)
+        {
+            response.Status = HttpStatusCode.BadGateway;
+            response.Message = $"Error retrieving users: {ex.Message}";
+        }
+
+        return response;
+    }
 }

@@ -24,4 +24,10 @@ public class UserRepo(BlogContext context) : IUserRepo
         return await context.Users.FirstOrDefaultAsync(u => u.Id == id) ??
                throw new NullReferenceException();
     }
+    
+    public async Task<List<User>> GetByUsernameUncapitalized(string username)
+    {
+        return await context.Users.Where(u => u.Username.ToLower() == username).ToListAsync() ??
+               throw new NullReferenceException();
+    }
 }
