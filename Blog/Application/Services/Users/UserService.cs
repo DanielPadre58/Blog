@@ -1,10 +1,10 @@
 ﻿using System.Net;
 using Blog.Api;
 using Blog.Application.Dtos.User;
-using Blog.Persistence.Repositories;
+using Blog.Application.Services.User;
 using Blog.Persistence.Repositories.Users;
 
-namespace Blog.Application.Services.User;
+namespace Blog.Application.Services.Users;
 
 public class UserService(IUserRepo repository) : IUserService
 {

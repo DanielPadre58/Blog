@@ -1,8 +1,7 @@
 using Blog.Application.Services.User;
+using Blog.Application.Services.Users;
 using Blog.Persistence.DbContext;
-using Blog.Persistence.Repositories;
 using Blog.Persistence.Repositories.Posts;
-using Blog.Persistence.Repositories.Users;
 using Blog.Persistence.Repositories.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
