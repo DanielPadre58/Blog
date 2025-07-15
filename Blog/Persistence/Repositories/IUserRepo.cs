@@ -1,6 +1,8 @@
-﻿namespace Blog.Persistence.Repositories;
+﻿using Blog.Domain.Entities;
+
+namespace Blog.Persistence.Repositories;
 
 public interface IUserRepo
 {
-    
+    public Task Create(User user);
 }
