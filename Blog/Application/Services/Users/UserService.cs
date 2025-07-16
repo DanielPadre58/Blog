@@ -13,12 +13,7 @@ public class UserService(IUserRepo repository) : IUserService
         var response = new ResponseModel<Domain.Entities.User>();
         try
         {
-            if(repository.UsernameExists(userDto.Username).Result)
-            {
-                response.Status = HttpStatusCode.Conflict;
-                response.Message = "User with same username already exists";
-                return response;
-            }
+            if (UsernameExists(userDto, response, out var failedResponse)) return failedResponse;
             
             var user = new Domain.Entities.User()
             {
@@ -33,7 +28,7 @@ public class UserService(IUserRepo repository) : IUserService
 
             response.Status = HttpStatusCode.Created;
             response.Message = "User created";
-            response.Data = new List<Domain.Entities.User> { user };
+            response.Data.Add(user);
         }
         catch (Exception ex)
         {
@@ -43,7 +38,7 @@ public class UserService(IUserRepo repository) : IUserService
 
         return response;
     }
-    
+
     public async Task<ResponseModel<Domain.Entities.User>> DeleteById(int userId)
     {
         var response = new ResponseModel<Domain.Entities.User>();
@@ -72,12 +67,12 @@ public class UserService(IUserRepo repository) : IUserService
 
             response.Status = HttpStatusCode.OK;
             response.Message = "User retrieved successfully";
-            response.Data = new List<Domain.Entities.User> { user };
+            response.Data.Add(user);
         }
         catch (NullReferenceException ex)
         {
             response.Status = HttpStatusCode.NotFound;
-            response.Message = $"User with id {userId} does not exist";
+            response.Message = $"User with id {userId} does not exist: {ex.Message}";
         }
         catch (Exception ex)
         {
@@ -102,7 +97,7 @@ public class UserService(IUserRepo repository) : IUserService
         catch (NullReferenceException ex)
         {
             response.Status = HttpStatusCode.NotFound;
-            response.Message = $"No user found with username {username}, or  similar";
+            response.Message = $"No user found with username {username}, or  similar: {ex.Message}";
         }
         catch (Exception ex)
         {
@@ -111,5 +106,19 @@ public class UserService(IUserRepo repository) : IUserService
         }
 
         return response;
+    }
+    
+    private bool UsernameExists(UserCreationDto userDto, ResponseModel<Domain.Entities.User> response, out ResponseModel<Domain.Entities.User> failedResponse)
+    {
+        if(repository.UsernameExists(userDto.Username).Result)
+        {
+            response.Status = HttpStatusCode.Conflict;
+            response.Message = "User with same username already exists";
+            failedResponse = response;
+            return true;
+        }
+
+        failedResponse = response;
+        return false;
     }
 }
