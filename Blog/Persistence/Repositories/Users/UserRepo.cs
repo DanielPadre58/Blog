@@ -52,4 +52,15 @@ public class UserRepo(BlogContext context) : IUserRepo
         return await context.Users.Where(u => u.Username.ToLower() == username).ToListAsync() ??
                throw new NullReferenceException();
     }
+
+    public async Task AddLikeById(int userId, int postId)
+    {
+        var user = GetById(userId).Result ??
+                   throw new NullReferenceException("User not found");
+        var post = await context.Posts.FirstOrDefaultAsync(p => p.Id == postId) ??
+                   throw new NullReferenceException("Post not found");
+
+        user.LikedPosts?.Add(post);
+        await context.SaveChangesAsync();
+    }
 }

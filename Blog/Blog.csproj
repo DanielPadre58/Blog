@@ -28,4 +28,9 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Application\Dtos\Posts\" />
+      <Folder Include="Application\Services\Posts\" />
+    </ItemGroup>
+
 </Project>

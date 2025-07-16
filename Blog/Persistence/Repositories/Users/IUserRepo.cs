@@ -11,4 +11,5 @@ public interface IUserRepo
     public Task<User> GetById(int id);
     public Task<bool> UsernameExists(string username);
     public Task<List<User>> GetByUsernameUncapitalized(string username);
+    public Task AddLikeById(int userId, int postId);
 }

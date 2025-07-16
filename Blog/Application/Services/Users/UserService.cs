@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Blog.Api;
 using Blog.Application.Dtos.User;
+using Blog.Application.Dtos.Users;
 using Blog.Domain.Entities;
 using Blog.Persistence.Repositories.Users;
 
@@ -8,9 +9,9 @@ namespace Blog.Application.Services.Users;
 
 public class UserService(IUserRepo repository) : IUserService
 {
-    public async Task<ResponseModel<User>> Create(UserCreationDto userDto)
+    public async Task<ResponseModel<UserDto>> Create(UserCreationDto userDto)
     {
-        var response = new ResponseModel<User>();
+        var response = new ResponseModel<UserDto>();
         try
         {
             if (UsernameExists(userDto.Username, response, out var failedResponse)) return failedResponse;
@@ -28,7 +29,7 @@ public class UserService(IUserRepo repository) : IUserService
 
             response.Status = HttpStatusCode.Created;
             response.Message = "User created";
-            response.Data.Add(user);
+            response.Data.Add(new UserDto(user));
         }
         catch (Exception ex)
         {
@@ -39,9 +40,9 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
 
-    public async Task<ResponseModel<User>> DeleteById(int userId)
+    public async Task<ResponseModel<UserDto>> DeleteById(int userId)
     {
-        var response = new ResponseModel<User>();
+        var response = new ResponseModel<UserDto>();
         try
         {
             await repository.Delete(userId);
@@ -58,9 +59,9 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
 
-    public async Task<ResponseModel<User>> EditById(int id, UserUpdateDto updatedUser)
+    public async Task<ResponseModel<UserDto>> EditById(int id, UserUpdateDto updatedUser)
     {
-        var response = new ResponseModel<User>();
+        var response = new ResponseModel<UserDto>();
         try
         {
             if (updatedUser.Username != null && UsernameExists(updatedUser.Username, response, out var failedResponse)) 
@@ -85,16 +86,16 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
 
-    public async Task<ResponseModel<User>> GetById(int userId)
+    public async Task<ResponseModel<UserDto>> GetById(int userId)
     {
-        var response = new ResponseModel<User>();
+        var response = new ResponseModel<UserDto>();
         try
         {
             var user = await repository.GetById(userId);
 
             response.Status = HttpStatusCode.OK;
             response.Message = "User retrieved successfully";
-            response.Data.Add(user);
+            response.Data.Add(new UserDto(user));
         }
         catch (NullReferenceException ex)
         {
@@ -110,16 +111,16 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
     
-    public async Task<ResponseModel<User>> GetByUsername(string username)
+    public async Task<ResponseModel<UserDto>> GetByUsername(string username)
     {
-        var response = new ResponseModel<User>();
+        var response = new ResponseModel<UserDto>();
         try
         {
             var users = await repository.GetByUsernameUncapitalized(username.ToLower());
 
             response.Status = HttpStatusCode.OK;
             response.Message = "User(s) retrieved successfully";
-            response.Data = users;
+            response.Data = UserDto.ToDtoList(users);
         }
         catch (NullReferenceException ex)
         {
@@ -134,8 +135,32 @@ public class UserService(IUserRepo repository) : IUserService
 
         return response;
     }
-    
-    private bool UsernameExists(string username, ResponseModel<User> response, out ResponseModel<User> failedResponse)
+
+    public async Task<ResponseModel<UserDto>> AddLikeById(int userId, int postId)
+    {
+        var response = new ResponseModel<UserDto>();
+        try
+        {
+            await repository.AddLikeById(userId, postId);
+
+            response.Status = HttpStatusCode.OK;
+            response.Message = "Like added successfully";
+        }
+        catch (NullReferenceException ex)
+        {
+            response.Status = HttpStatusCode.NotFound;
+            response.Message = $"User or post not found: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            response.Status = HttpStatusCode.BadGateway;
+            response.Message = $"Error adding like: {ex.Message}";
+        }
+
+        return response;
+    }
+
+    private bool UsernameExists(string username, ResponseModel<UserDto> response, out ResponseModel<UserDto> failedResponse)
     {
         if(repository.UsernameExists(username).Result)
         {

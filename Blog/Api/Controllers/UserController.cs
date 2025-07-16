@@ -1,4 +1,5 @@
 ﻿using Blog.Application.Dtos.User;
+using Blog.Application.Dtos.Users;
 using Blog.Application.Services.Users;
 using Blog.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -10,29 +11,29 @@ namespace Blog.Api.Controllers;
 public class UserController(IUserService service)
 {
     [HttpPost]
-    public ResponseModel<User> CreateUser(UserCreationDto user)
+    public ResponseModel<UserDto> CreateUser(UserCreationDto user)
     {
         return service.Create(user).Result;
     }
     
     [HttpDelete]
-    public ResponseModel<User> DeleteUserById([FromQuery] int id)
+    public ResponseModel<UserDto> DeleteUserById([FromQuery] int id)
     {
         return service.DeleteById(id).Result;
     }
 
     [HttpPut]
-    public ResponseModel<User> EditUserById([FromQuery] int id, [FromBody] UserUpdateDto updatedUser)
+    public ResponseModel<UserDto> EditUserById([FromQuery] int id, [FromBody] UserUpdateDto updatedUser)
     {
         return service.EditById(id, updatedUser).Result;
     }
 
     [HttpGet]
-    public ResponseModel<User> GetUser([FromQuery] int? id, [FromQuery] string? username = null)
+    public ResponseModel<UserDto> GetUser([FromQuery] int? id, [FromQuery] string? username = null)
     {
         if (username != null && id.HasValue)
         {
-            var response = new ResponseModel<User>
+            var response = new ResponseModel<UserDto>
             {
                 Status = System.Net.HttpStatusCode.BadRequest,
                 Message = "Please provide either id or username, not both."
@@ -43,7 +44,7 @@ public class UserController(IUserService service)
         
         if(username == null && !id.HasValue)
         {
-            var response = new ResponseModel<User>
+            var response = new ResponseModel<UserDto>
             {
                 Status = System.Net.HttpStatusCode.BadRequest,
                 Message = "Either id or username must be provided."
@@ -53,5 +54,11 @@ public class UserController(IUserService service)
         }
         
         return username != null ? service.GetByUsername(username).Result : service.GetById(id!.Value)!.Result;
+    }
+    
+    [HttpPost("like")]
+    public ResponseModel<UserDto> AddLikeById([FromQuery] int userId, [FromQuery] int postId)
+    {
+        return service.AddLikeById(userId, postId).Result;
     }
 }
