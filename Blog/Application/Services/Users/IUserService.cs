@@ -1,7 +1,7 @@
 ﻿using Blog.Api;
 using Blog.Application.Dtos.User;
 
-namespace Blog.Application.Services.User;
+namespace Blog.Application.Services.Users;
 
 public interface IUserService
 {

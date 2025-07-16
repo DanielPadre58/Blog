@@ -1,4 +1,3 @@
-using Blog.Application.Services.User;
 using Blog.Application.Services.Users;
 using Blog.Persistence.DbContext;
 using Blog.Persistence.Repositories.Posts;

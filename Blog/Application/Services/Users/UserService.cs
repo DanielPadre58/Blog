@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using Blog.Api;
 using Blog.Application.Dtos.User;
-using Blog.Application.Services.User;
 using Blog.Persistence.Repositories.Users;
 
 namespace Blog.Application.Services.Users;

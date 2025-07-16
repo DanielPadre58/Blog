@@ -1,5 +1,5 @@
 ﻿using Blog.Application.Dtos.User;
-using Blog.Application.Services.User;
+using Blog.Application.Services.Users;
 using Blog.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +18,7 @@ public class UserController(IUserService service)
     [HttpDelete]
     public ResponseModel<User> DeleteUserById([FromQuery] int id)
     {
-        return service.DeleteById(id)!.Result;
+        return service.DeleteById(id).Result;
     }
 
     [HttpGet]
@@ -46,6 +46,6 @@ public class UserController(IUserService service)
             return response;
         }
         
-        return username != null ? service.GetByUsername(username)!.Result : service.GetById(id!.Value)!.Result;
+        return username != null ? service.GetByUsername(username).Result : service.GetById(id!.Value)!.Result;
     }
 }
