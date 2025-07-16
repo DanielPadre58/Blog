@@ -13,7 +13,7 @@ public class UserService(IUserRepo repository) : IUserService
         var response = new ResponseModel<Domain.Entities.User>();
         try
         {
-            if(repository.GetByUsername(userDto.Username).Result.Count > 0)
+            if(repository.UsernameExists(userDto.Username).Result)
             {
                 response.Status = HttpStatusCode.Conflict;
                 response.Message = "User with same username already exists";

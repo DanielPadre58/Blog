@@ -25,10 +25,9 @@ public class UserRepo(BlogContext context) : IUserRepo
                throw new NullReferenceException();
     }
     
-    public async Task<List<User>> GetByUsername(string username)
+    public async Task<bool> UsernameExists(string username)
     {
-        return await context.Users.Where(u => u.Username == username).ToListAsync() ??
-               throw new NullReferenceException();
+        return await context.Users.AnyAsync(u => u.Username == username);
     }
     
     public async Task<List<User>> GetByUsernameUncapitalized(string username)
