@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Blog.Api;
 using Blog.Application.Dtos.User;
+using Blog.Domain.Entities;
 using Blog.Persistence.Repositories.Users;
 
 namespace Blog.Application.Services.Users;
@@ -12,7 +13,7 @@ public class UserService(IUserRepo repository) : IUserService
         var response = new ResponseModel<Domain.Entities.User>();
         try
         {
-            if (UsernameExists(userDto, response, out var failedResponse)) return failedResponse;
+            if (UsernameExists(userDto.Username, response, out var failedResponse)) return failedResponse;
             
             var user = new Domain.Entities.User()
             {
@@ -107,9 +108,9 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
     
-    private bool UsernameExists(UserCreationDto userDto, ResponseModel<Domain.Entities.User> response, out ResponseModel<Domain.Entities.User> failedResponse)
+    private bool UsernameExists(string username, ResponseModel<Domain.Entities.User> response, out ResponseModel<Domain.Entities.User> failedResponse)
     {
-        if(repository.UsernameExists(userDto.Username).Result)
+        if(repository.UsernameExists(username).Result)
         {
             response.Status = HttpStatusCode.Conflict;
             response.Message = "User with same username already exists";
