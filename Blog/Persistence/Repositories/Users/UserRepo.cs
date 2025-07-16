@@ -1,4 +1,5 @@
-﻿using Blog.Domain.Entities;
+﻿using Blog.Application.Dtos.User;
+using Blog.Domain.Entities;
 using Blog.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,22 @@ public class UserRepo(BlogContext context) : IUserRepo
         await context.Users
             .Where(u => u.Id == id)
             .ExecuteDeleteAsync();
+    }
+
+    public Task EditById(int id, UserUpdateDto updatedUser)
+    {
+        var user = GetById(id).Result;
+        
+        if(updatedUser.Username != null)
+            user.Username = updatedUser.Username;
+        if(updatedUser.FirstName != null)
+            user.FirstName = updatedUser.FirstName;
+        if(updatedUser.LastName != null)
+            user.LastName = updatedUser.LastName;
+        if(updatedUser.Birthday != null)
+            user.Birthday = updatedUser.Birthday;
+        
+        return context.SaveChangesAsync();
     }
 
     public async Task<User> GetById(int id)

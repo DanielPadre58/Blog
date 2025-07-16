@@ -12,13 +12,19 @@ public class UserController(IUserService service)
     [HttpPost]
     public ResponseModel<User> CreateUser(UserCreationDto user)
     {
-        return service.Create(user)!.Result;
+        return service.Create(user).Result;
     }
     
     [HttpDelete]
     public ResponseModel<User> DeleteUserById([FromQuery] int id)
     {
         return service.DeleteById(id).Result;
+    }
+
+    [HttpPut]
+    public ResponseModel<User> EditUserById([FromQuery] int id, [FromBody] UserUpdateDto updatedUser)
+    {
+        return service.EditById(id, updatedUser).Result;
     }
 
     [HttpGet]

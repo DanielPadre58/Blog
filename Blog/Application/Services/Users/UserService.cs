@@ -8,14 +8,14 @@ namespace Blog.Application.Services.Users;
 
 public class UserService(IUserRepo repository) : IUserService
 {
-    public async Task<ResponseModel<Domain.Entities.User>> Create(UserCreationDto userDto)
+    public async Task<ResponseModel<User>> Create(UserCreationDto userDto)
     {
-        var response = new ResponseModel<Domain.Entities.User>();
+        var response = new ResponseModel<User>();
         try
         {
             if (UsernameExists(userDto.Username, response, out var failedResponse)) return failedResponse;
             
-            var user = new Domain.Entities.User()
+            var user = new User()
             {
                 Username = userDto.Username,
                 Email = userDto.Email,
@@ -39,9 +39,9 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
 
-    public async Task<ResponseModel<Domain.Entities.User>> DeleteById(int userId)
+    public async Task<ResponseModel<User>> DeleteById(int userId)
     {
-        var response = new ResponseModel<Domain.Entities.User>();
+        var response = new ResponseModel<User>();
         try
         {
             await repository.Delete(userId);
@@ -58,9 +58,36 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
 
-    public async Task<ResponseModel<Domain.Entities.User>> GetById(int userId)
+    public async Task<ResponseModel<User>> EditById(int id, UserUpdateDto updatedUser)
     {
-        var response = new ResponseModel<Domain.Entities.User>();
+        var response = new ResponseModel<User>();
+        try
+        {
+            if (updatedUser.Username != null && UsernameExists(updatedUser.Username, response, out var failedResponse)) 
+                return failedResponse;
+
+            await repository.EditById(id, updatedUser);
+            
+            response.Status = HttpStatusCode.OK;
+            response.Message = "User updated successfully";
+        }
+        catch (NullReferenceException ex)
+        {
+            response.Status = HttpStatusCode.NotFound;
+            response.Message = $"User with id {id} does not exist: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            response.Status = HttpStatusCode.BadGateway;
+            response.Message = $"Error updating user: {ex.Message}";
+        }
+
+        return response;
+    }
+
+    public async Task<ResponseModel<User>> GetById(int userId)
+    {
+        var response = new ResponseModel<User>();
         try
         {
             var user = await repository.GetById(userId);
@@ -83,9 +110,9 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
     
-    public async Task<ResponseModel<Domain.Entities.User>> GetByUsername(string username)
+    public async Task<ResponseModel<User>> GetByUsername(string username)
     {
-        var response = new ResponseModel<Domain.Entities.User>();
+        var response = new ResponseModel<User>();
         try
         {
             var users = await repository.GetByUsernameUncapitalized(username.ToLower());
@@ -108,7 +135,7 @@ public class UserService(IUserRepo repository) : IUserService
         return response;
     }
     
-    private bool UsernameExists(string username, ResponseModel<Domain.Entities.User> response, out ResponseModel<Domain.Entities.User> failedResponse)
+    private bool UsernameExists(string username, ResponseModel<User> response, out ResponseModel<User> failedResponse)
     {
         if(repository.UsernameExists(username).Result)
         {
