@@ -26,6 +26,8 @@ public class UserService(IUserRepo repository) : IUserService
                 Email = userDto.Email,
                 Password = userDto.Password
             };
+            
+            user.Validate();
 
             await repository.Create(user);
 
