@@ -25,7 +25,7 @@ public class UserService(IUserRepo repository) : IUserService
             
             user.Validate();
 
-            await repository.Create(user);
+            user = repository.Create(user).Result;
 
             response.Status = HttpStatusCode.Created;
             response.Message = "User created";
@@ -67,10 +67,11 @@ public class UserService(IUserRepo repository) : IUserService
             if (updatedUser.Username != null && UsernameExists(updatedUser.Username, response, out var failedResponse)) 
                 return failedResponse;
 
-            await repository.EditById(id, updatedUser);
+            var user = await repository.EditById(id, updatedUser);
             
             response.Status = HttpStatusCode.OK;
             response.Message = "User updated successfully";
+            response.Data.Add(new UserDto(user));
         }
         catch (NullReferenceException ex)
         {

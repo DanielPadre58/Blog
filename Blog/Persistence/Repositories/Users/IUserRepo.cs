@@ -5,9 +5,9 @@ namespace Blog.Persistence.Repositories.Users;
 
 public interface IUserRepo
 {
-    public Task Create(User user);
+    public Task<User> Create(User user);
     public Task Delete(int id);
-    public Task EditById(int id, UserUpdateDto updatedUser);
+    public Task<User> EditById(int id, UserUpdateDto updatedUser);
     public Task<User> GetById(int id);
     public Task<bool> UsernameExists(string username);
     public Task<List<User>> GetByUsernameUncapitalized(string username);

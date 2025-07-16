@@ -7,10 +7,12 @@ namespace Blog.Persistence.Repositories.Users;
 
 public class UserRepo(BlogContext context) : IUserRepo
 {
-    public async Task Create(User user)
+    public async Task<User> Create(User user)
     {
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
+        
+        return user;
     }
 
     public async Task Delete(int id)
@@ -20,7 +22,7 @@ public class UserRepo(BlogContext context) : IUserRepo
             .ExecuteDeleteAsync();
     }
 
-    public Task EditById(int id, UserUpdateDto updatedUser)
+    public async Task<User> EditById(int id, UserUpdateDto updatedUser)
     {
         var user = GetById(id).Result;
         
@@ -33,7 +35,9 @@ public class UserRepo(BlogContext context) : IUserRepo
         if(updatedUser.Birthday != null)
             user.Birthday = updatedUser.Birthday;
         
-        return context.SaveChangesAsync();
+        await context.SaveChangesAsync();
+        
+        return user;
     }
 
     public async Task<User> GetById(int id)
