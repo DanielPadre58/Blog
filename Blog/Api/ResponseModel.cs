@@ -4,58 +4,37 @@ namespace Blog.Api;
 
 public class ResponseModel<T>
 {
-    public HttpStatusCode Status { get; set; }
+    public bool Success { get; set; }
     public string? Message { get; set; }
     public ICollection<T> Data { get; set; } = new List<T>();
-
-    public void Ok(string message, ICollection<T> data)
+    
+    public ResponseModel<T> SuccessResponse(string message)
     {
-        Status = HttpStatusCode.OK;
+        Success = true;
+        Message = message;
+        return this;
+    }
+    
+    public ResponseModel<T> SuccessResponse(string message, T data)
+    {
+        Success = true;
+        Message = message;
+        Data.Add(data);
+        return this;
+    }
+    
+    public ResponseModel<T> SuccessResponse(string message, ICollection<T> data)
+    {
+        Success = true;
         Message = message;
         Data = data;
+        return this;
     }
     
-    public void Ok(string message, T data)
+    public ResponseModel<T> ErrorResponse(string message)
     {
-        Status = HttpStatusCode.OK;
+        Success = false;
         Message = message;
-        Data.Add(data);
-    }
-    
-    public void Ok(string message)
-    {
-        Status = HttpStatusCode.OK;
-        Message = message;
-    }
-    
-    public void Created(string message, T data)
-    {
-        Status = HttpStatusCode.Created;
-        Message = message;
-        Data.Add(data);
-    }
-    
-    public void BadRequest(string message)
-    {
-        Status = HttpStatusCode.BadRequest;
-        Message = message;
-    }
-    
-    public void NotFound(string message)
-    {
-        Status = HttpStatusCode.NotFound;
-        Message = message;
-    }
-    
-    public void Conflict(string message)
-    {
-        Status = HttpStatusCode.Conflict;
-        Message = message;
-    }
-    
-    public void InternalServerError(string message)
-    {
-        Status = HttpStatusCode.InternalServerError;
-        Message = message;
+        return this;
     }
 }

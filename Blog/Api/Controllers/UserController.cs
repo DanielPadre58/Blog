@@ -1,56 +1,147 @@
 ﻿using Blog.Application.Dtos.User;
 using Blog.Application.Dtos.Users;
 using Blog.Application.Services.Users;
-using Blog.Domain.Entities;
+using Blog.Shared.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IUserService service)
+public class UserController(IUserService service) : ControllerBase
 {
     [HttpPost]
-    public ResponseModel<UserDto> CreateUser(UserCreationDto user)
+    public async Task<ActionResult<ResponseModel<UserDto>>> CreateUser(UserCreationDto user)
     {
-        return service.Create(user).Result;
+        var response = new ResponseModel<UserDto>();
+
+        try
+        {
+            var createdUser = await service.Create(user);
+            response.SuccessResponse("User created successfully", createdUser);
+
+            return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, response);
+        }
+        catch (DuplicatedUsernameException ex)
+        {
+            return Conflict(response.ErrorResponse(ex.Message));
+        }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
     }
-    
+
     [HttpDelete]
-    public ResponseModel<UserDto> DeleteUserById([FromQuery] int id)
+    public async Task<ActionResult<ResponseModel<UserDto>>> DeleteUserById([FromQuery] int id)
     {
-        return service.DeleteById(id).Result;
+        var response = new ResponseModel<UserDto>();
+
+        try
+        {
+            await service.DeleteById(id);
+            response.SuccessResponse("User deleted successfully");
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
     }
 
     [HttpPut]
-    public ResponseModel<UserDto> EditUserById([FromQuery] int id, [FromBody] UserUpdateDto updatedUser)
+    public async Task<ActionResult<ResponseModel<UserDto>>> EditUserById([FromQuery] int id, [FromBody] UserUpdateDto updatedUser)
     {
-        return service.EditById(id, updatedUser).Result;
+        var response = new ResponseModel<UserDto>();
+
+        try
+        {
+            var user = await service.EditById(id, updatedUser);
+            response.SuccessResponse("User edited successfully", user);
+            return Ok(response);
+        }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (DuplicatedUsernameException ex)
+        {
+            return Conflict(response.ErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
     }
 
     [HttpGet]
-    public ResponseModel<UserDto> GetUser([FromQuery] int? id, [FromQuery] string? username = null)
+    public async Task<ActionResult<ResponseModel<UserDto>>> GetUser([FromQuery] int? id, [FromQuery] string? username = null)
     {
+        var response = new ResponseModel<UserDto>();
+
         if (username != null && id.HasValue)
         {
-            var response  = new ResponseModel<UserDto>();
-            response.BadRequest("Please provide either id or username, not both.");
-            return response;
+            return BadRequest(response.ErrorResponse("Please provide either id or username, not both."));
         }
-        
-        if(username == null && !id.HasValue)
+
+        if (username == null && !id.HasValue)
         {
-            var response = new ResponseModel<UserDto>();
-            response.BadRequest("Please provide either id or username.");
-            return response;
+            return BadRequest(response.ErrorResponse("Please provide either id or username."));
         }
-        
-        return username != null ? service.GetByUsername(username).Result : service.GetById(id!.Value)!.Result;
+
+        if (username == null)
+        {
+            return await GetUserById(id!.Value, response);
+        }
+
+        return await GetUserByUsername(username, response);
     }
-    
-    [HttpPost("like")]
-    public ResponseModel<UserDto> AddLikeById([FromQuery] int userId, [FromQuery] int postId)
+
+    private async Task<ActionResult<ResponseModel<UserDto>>> GetUserByUsername(string username, ResponseModel<UserDto> response)
     {
-        return service.AddLikeById(userId, postId).Result;
+        try
+        {
+            var users = await service.GetByUsername(username);
+            response.SuccessResponse("User retrieved successfully", users);
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
+    }
+
+    private async Task<ActionResult<ResponseModel<UserDto>>> GetUserById(int id, ResponseModel<UserDto> response)
+    {
+        try
+        {
+            var user = await service.GetById(id);
+            response.SuccessResponse("User retrieved successfully", user);
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
     }
 }
