@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Blog.Application.Dtos.Users;
 
 namespace Blog.Domain.Entities;
 

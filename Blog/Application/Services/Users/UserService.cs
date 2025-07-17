@@ -33,6 +33,10 @@ public class UserService(IUserRepo repository) : IUserService
                 new UserDto(user)
             );
         }
+        catch (ArgumentException ex)
+        {
+            response.BadRequest($"Invalid user data: {ex.Message}");
+        }
         catch (Exception ex)
         {
             response.InternalServerError($"Error creating user: {ex.Message}");
@@ -72,6 +76,8 @@ public class UserService(IUserRepo repository) : IUserService
             if (updatedUser.Username != null && UsernameExists(updatedUser.Username, response, out var failedResponse))
                 return failedResponse;
 
+            updatedUser.Validate();
+
             var user = await repository.EditById(id, updatedUser);
 
             response.Ok(
@@ -82,6 +88,10 @@ public class UserService(IUserRepo repository) : IUserService
         catch (NullReferenceException ex)
         {
             response.NotFound($"User with id {id} does not exist: {ex.Message}");
+        }
+        catch (ArgumentException ex)
+        {
+            response.BadRequest($"Invalid user data: {ex.Message}");
         }
         catch (Exception ex)
         {
