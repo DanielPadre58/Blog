@@ -33,23 +33,15 @@ public class UserController(IUserService service)
     {
         if (username != null && id.HasValue)
         {
-            var response = new ResponseModel<UserDto>
-            {
-                Status = System.Net.HttpStatusCode.BadRequest,
-                Message = "Please provide either id or username, not both."
-            };
-            
+            var response  = new ResponseModel<UserDto>();
+            response.BadRequest("Please provide either id or username, not both.");
             return response;
         }
         
         if(username == null && !id.HasValue)
         {
-            var response = new ResponseModel<UserDto>
-            {
-                Status = System.Net.HttpStatusCode.BadRequest,
-                Message = "Either id or username must be provided."
-            };
-            
+            var response = new ResponseModel<UserDto>();
+            response.BadRequest("Please provide either id or username.");
             return response;
         }
         

@@ -17,9 +17,11 @@ public class UserRepo(BlogContext context) : IUserRepo
 
     public async Task Delete(int id)
     {
-        await context.Users
-            .Where(u => u.Id == id)
-            .ExecuteDeleteAsync();
+        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id) ??
+                   throw new NullReferenceException("User not found");
+        
+        context.Users.Remove(user);
+        await context.SaveChangesAsync();
     }
 
     public async Task<User> EditById(int id, UserUpdateDto updatedUser)
