@@ -20,11 +20,6 @@ public record UserDto(int Id, string Username, string? FirstName, string? LastNa
         user.Birthday
     ){}
     
-    public void Validate()
-    {
-        Domain.Entities.User.Validate(this);
-    }
-    
     public static List<UserDto> ToDtoList(List<Domain.Entities.User> users)
     {
         return users.Select(user => new UserDto(user)).ToList();
