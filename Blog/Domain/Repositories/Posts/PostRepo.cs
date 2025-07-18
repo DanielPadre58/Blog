@@ -1,9 +1,14 @@
-﻿namespace Blog.Domain.Repositories.Posts;
+﻿using Blog.DbContext;
+using Blog.Domain.Entities;
 
-public class PostRepo : IPostRepo
+namespace Blog.Domain.Repositories.Posts;
+
+public class PostRepo(BlogContext context) : IPostRepo
 {
-    public Task<Post> Create(Post post)
+    public async Task<Post> Create(Post post)
     {
-        throw new NotImplementedException();
+        await context.Posts.AddAsync(post);
+
+        return post;
     }
 }
