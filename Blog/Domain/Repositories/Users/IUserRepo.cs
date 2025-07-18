@@ -1,7 +1,7 @@
 ﻿using Blog.Application.Dtos.Users;
 using Blog.Domain.Entities;
 
-namespace Blog.Persistence.Repositories.Users;
+namespace Blog.Domain.Repositories.Users;
 
 public interface IUserRepo
 {

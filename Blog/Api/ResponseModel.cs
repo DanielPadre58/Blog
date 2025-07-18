@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace Blog.Api;
+﻿namespace Blog.Api;
 
 public class ResponseModel<T>
 {

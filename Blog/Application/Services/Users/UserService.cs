@@ -1,7 +1,7 @@
 ﻿using Blog.Application.Dtos.User;
 using Blog.Application.Dtos.Users;
 using Blog.Domain.Entities;
-using Blog.Persistence.Repositories.Users;
+using Blog.Domain.Repositories.Users;
 using Blog.Shared.Exceptions;
 
 namespace Blog.Application.Services.Users;

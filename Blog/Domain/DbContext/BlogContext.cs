@@ -1,10 +1,9 @@
 ﻿using Blog.Domain.Entities;
-
-namespace Blog.Persistence.DbContext;
-
 using Microsoft.EntityFrameworkCore;
 
-public class BlogContext(DbContextOptions<BlogContext> options) : DbContext(options)
+namespace Blog.DbContext;
+
+public class BlogContext(DbContextOptions<BlogContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Post> Posts { get; set; }

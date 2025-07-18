@@ -1,10 +1,10 @@
 ﻿using Blog.Application.Dtos.Users;
+using Blog.DbContext;
 using Blog.Domain.Entities;
-using Blog.Persistence.DbContext;
 using Blog.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
-namespace Blog.Persistence.Repositories.Users;
+namespace Blog.Domain.Repositories.Users;
 
 public class UserRepo(BlogContext context) : IUserRepo
 {
