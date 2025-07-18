@@ -3,22 +3,25 @@ using Blog.Application.Dtos.Users;
 using Blog.Domain.Entities;
 using Blog.Domain.Repositories.Users;
 using Blog.Shared.Exceptions;
+using Microsoft.AspNetCore.Identity;
 
 namespace Blog.Application.Services.Users;
 
-public class UserService(IUserRepo repository) : IUserService
+public class UserService(IUserRepo repository, IPasswordHasher<User> hasher) : IUserService
 {
     public async Task<UserDto> Create(UserCreationDto userDto)
     {
         await ValidateUsernameUniquenessAsync(userDto.Username);
-
+        
         var user = new User
         {
             Username = userDto.Username,
             Email = userDto.Email,
-            Password = userDto.Password
+            Password = string.Empty
         };
 
+        user.Password = hasher.HashPassword(user, userDto.Password);
+        
         user.Validate();
 
         var createdUser = await repository.Create(user);
