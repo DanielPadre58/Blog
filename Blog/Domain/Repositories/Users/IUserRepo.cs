@@ -6,9 +6,9 @@ namespace Blog.Domain.Repositories.Users;
 public interface IUserRepo
 {
     public Task<User> Create(User user);
-    public Task Delete(int id);
-    public Task<User> EditById(int id, UserUpdateDto updatedUser);
-    public Task<User> GetById(int id);
+    public Task Delete(string username);
+    public Task<User> Edit(string username, UserUpdateDto updatedUser);
+    public Task<User> GetByUsername(string username);
     public Task<bool> UsernameExists(string username);
     public Task<List<User>> GetByUsernameUncapitalized(string username);
 }

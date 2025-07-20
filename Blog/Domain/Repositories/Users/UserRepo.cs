@@ -16,17 +16,17 @@ public class UserRepo(BlogContext context) : IUserRepo
         return user;
     }
 
-    public async Task Delete(int id)
+    public async Task Delete(string username)
     {
-        var user = await GetById(id);
+        var user = await GetByUsername(username);
 
         context.Users.Remove(user);
         await context.SaveChangesAsync();
     }
 
-    public async Task<User> EditById(int id, UserUpdateDto updatedUser)
+    public async Task<User> Edit(string username, UserUpdateDto updatedUser)
     {
-        var user = await GetById(id);
+        var user = await GetByUsername(username);
 
         if (updatedUser.Username != null)
             user.Username = updatedUser.Username;
@@ -41,12 +41,14 @@ public class UserRepo(BlogContext context) : IUserRepo
 
         return user;
     }
-
-    public async Task<User> GetById(int id)
+    
+    public async Task<User> GetByUsername(string username)
     {
-        return await context.Users
-                   .FirstOrDefaultAsync(u => u.Id == id) ??
-               throw new NotFoundException();
+        var user = await context.Users
+                       .FirstOrDefaultAsync(u => u.Username == username)??
+                   throw new NotFoundException($"User with username {username} not found");
+
+        return user;
     }
 
     public async Task<bool> UsernameExists(string username)

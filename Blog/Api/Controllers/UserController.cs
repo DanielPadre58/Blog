@@ -36,14 +36,14 @@ public class UserController(IUserService service) : ControllerBase
         }
     }
 
-    [HttpDelete]
-    public async Task<ActionResult<ResponseModel<UserDto>>> DeleteUserById([FromQuery] int id)
+    [HttpDelete("{username}")]
+    public async Task<ActionResult<ResponseModel<UserDto>>> DeleteUser(string username)
     {
         var response = new ResponseModel<UserDto>();
 
         try
         {
-            await service.DeleteById(id);
+            await service.Delete(username);
             response.SuccessResponse("User deleted successfully");
             return Ok(response);
         }
@@ -57,14 +57,14 @@ public class UserController(IUserService service) : ControllerBase
         }
     }
 
-    [HttpPut]
-    public async Task<ActionResult<ResponseModel<UserDto>>> EditUserById([FromQuery] int id, [FromBody] UserUpdateDto updatedUser)
+    [HttpPut("{username}")]
+    public async Task<ActionResult<ResponseModel<UserDto>>> EditUser(string username, [FromBody] UserUpdateDto updatedUser)
     {
         var response = new ResponseModel<UserDto>();
 
         try
         {
-            var user = await service.EditById(id, updatedUser);
+            var user = await service.Edit(username, updatedUser);
             response.SuccessResponse("User edited successfully", user);
             return Ok(response);
         }
@@ -86,53 +86,15 @@ public class UserController(IUserService service) : ControllerBase
         }
     }
 
-    [HttpGet]
-    public async Task<ActionResult<ResponseModel<UserDto>>> GetUser([FromQuery] int? id, [FromQuery] string? username = null)
+    [HttpGet("{username}")]
+    public async Task<ActionResult<ResponseModel<UserDto>>> GetUser(string username)
     {
         var response = new ResponseModel<UserDto>();
-
-        if (username != null && id.HasValue)
-        {
-            return BadRequest(response.ErrorResponse("Please provide either id or username, not both."));
-        }
-
-        if (username == null && !id.HasValue)
-        {
-            return BadRequest(response.ErrorResponse("Please provide either id or username."));
-        }
-
-        if (username == null)
-        {
-            return await GetUserById(id!.Value, response);
-        }
-
-        return await GetUserByUsername(username, response);
-    }
-
-    private async Task<ActionResult<ResponseModel<UserDto>>> GetUserByUsername(string username, ResponseModel<UserDto> response)
-    {
+        
         try
         {
             var users = await service.GetByUsername(username);
             response.SuccessResponse("User retrieved successfully", users);
-            return Ok(response);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(response.ErrorResponse(ex.Message));
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, response.ErrorResponse(ex.Message));
-        }
-    }
-
-    private async Task<ActionResult<ResponseModel<UserDto>>> GetUserById(int id, ResponseModel<UserDto> response)
-    {
-        try
-        {
-            var user = await service.GetById(id);
-            response.SuccessResponse("User retrieved successfully", user);
             return Ok(response);
         }
         catch (NotFoundException ex)

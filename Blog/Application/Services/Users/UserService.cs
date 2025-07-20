@@ -3,11 +3,11 @@ using Blog.Application.Dtos.Users;
 using Blog.Domain.Entities;
 using Blog.Domain.Repositories.Users;
 using Blog.Shared.Exceptions;
-using Microsoft.AspNetCore.Identity;
+using Blog.Shared.Security;
 
 namespace Blog.Application.Services.Users;
 
-public class UserService(IUserRepo repository, IPasswordHasher<User> hasher) : IUserService
+public class UserService(IUserRepo repository, IPasswordHasher hasher) : IUserService
 {
     public async Task<UserDto> Create(UserCreationDto userDto)
     {
@@ -29,32 +29,26 @@ public class UserService(IUserRepo repository, IPasswordHasher<User> hasher) : I
         return new UserDto(createdUser);
     }
 
-    public async Task DeleteById(int userId)
+    public async Task Delete(string username)
     {
-        await repository.Delete(userId);
+        await repository.Delete(username);
     }
 
-    public async Task<UserDto> EditById(int id, UserUpdateDto updatedUser)
+    public async Task<UserDto> Edit(string username, UserUpdateDto updatedUser)
     {
         updatedUser.Validate();
 
         if (updatedUser.Username != null)
             await ValidateUsernameUniquenessAsync(updatedUser.Username);
 
-        var user = await repository.EditById(id, updatedUser);
+        var user = await repository.Edit(username, updatedUser);
         return new UserDto(user);
     }
 
-    public async Task<UserDto> GetById(int userId)
+    public async Task<UserDto> GetByUsername(string username)
     {
-        var user = await repository.GetById(userId);
+        var user = await repository.GetByUsername(username.ToLower());
         return new UserDto(user);
-    }
-
-    public async Task<List<UserDto>> GetByUsername(string username)
-    {
-        var users = await repository.GetByUsernameUncapitalized(username.ToLower());
-        return users.Select(u => new UserDto(u)).ToList();
     }
 
     private async Task ValidateUsernameUniquenessAsync(string username)
