@@ -15,6 +15,7 @@ public class User
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public DateTime? Birthday { get; set; }
+    public DateTime Created { get; set; } = DateTime.Now;
     [JsonIgnore] public ICollection<Post>? Posts { get; set; }
     [JsonIgnore] public ICollection<Comment>? Comments { get; set; }
     [JsonIgnore] public ICollection<Post>? LikedPosts { get; set; }
