@@ -4,6 +4,7 @@ using Blog.Application.Services.Users;
 using Blog.DbContext;
 using Blog.Domain.Repositories.Posts;
 using Blog.Domain.Repositories.Users;
+using Blog.Shared.Background;
 using Blog.Shared.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -54,6 +55,8 @@ builder.Services.AddScoped<IPostRepo, PostRepo>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUnvalidatedUsersRepo, UnvalidatedUsersRepo>();
+
+builder.Services.AddHostedService<ExpiredUsersCleaner>();
 
 var app = builder.Build();
 
