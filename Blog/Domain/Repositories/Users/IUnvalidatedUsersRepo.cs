@@ -2,6 +2,7 @@
 
 public interface IUnvalidatedUsersRepo
 {
-    public Task AddValidationCode(string validationCode, string username);
-    public Task<string> ValidateUser(string validationCode);
+    public Task AddValidationCodeAsync(string validationCode, string username);
+    public Task<string> ValidateUserAsync(string validationCode);
+    public Task RemoveExpiredValidationCodes(List<string> expiredUsernames);
 }

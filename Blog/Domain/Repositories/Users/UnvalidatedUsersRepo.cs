@@ -14,24 +14,36 @@ public class UnvalidatedUsersRepo : IUnvalidatedUsersRepo
         _db = _redis.GetDatabase();
     }
 
-    public async Task AddValidationCode(string validationCode, string username)
+    public async Task AddValidationCodeAsync(string username, string code)
     {
-        var result = await _db.StringSetAsync(validationCode, username, TimeSpan.FromMinutes(10));
+        var ttl = TimeSpan.FromMinutes(10);
 
-        if (!result)
-            throw new Exception("Validation code could not be set.");
+        var setUsername = await _db.StringSetAsync($"validation:{username}", code, ttl);
+        var setCode = await _db.StringSetAsync($"code:{code}", username, ttl);
+
+        if (!setUsername || !setCode)
+            throw new Exception("Failed to store validation code.");
     }
 
-    public async Task<string> ValidateUser(string validationCode)
+    public async Task<string?> ValidateUserAsync(string code)
     {
-        if (!await _db.KeyExistsAsync(validationCode))
+        var username = await _db.StringGetAsync($"code:{code}");
+        if (username.IsNullOrEmpty)
             return null;
 
-        var username = _db.StringGetAsync(validationCode) ??
-                       throw new NotFoundException("Validation code not found or expired.");
-        
-        await _db.KeyDeleteAsync(validationCode);
-        
-        return username.ToString();;
+        await _db.KeyDeleteAsync($"code:{code}");
+        await _db.KeyDeleteAsync($"validation:{username}");
+
+        return username.ToString();
+    }
+
+    public async Task RemoveExpiredValidationCodes(List<string> expiredUsernames)
+    {
+        foreach (var username in expiredUsernames)
+        {
+            var code = await _db.StringGetAsync($"validation:{username}");
+            await _db.KeyDeleteAsync($"code:{code.ToString()}");
+            await _db.KeyDeleteAsync($"validation:{username}");
+        }
     }
 }

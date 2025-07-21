@@ -50,7 +50,7 @@ public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpServ
     {
         var user = await repository.GetByUsername(username.ToLower());
         
-        if(!user.verified)
+        if(!user.Verified)
             throw new UnverifiedUserException();
         
         return new UserDto(user);
@@ -58,7 +58,7 @@ public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpServ
 
     public async Task<UserDto> VerifyUser(string validationCode)
     {
-        var username = unvalidatedUsersRepo.ValidateUser(validationCode).Result;
+        var username = unvalidatedUsersRepo.ValidateUserAsync(validationCode).Result;
 
         var user = await repository.VerifyUser(username);
 
@@ -68,7 +68,7 @@ public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpServ
     private async Task SendVerificationEmailAsync(User user)
     {
         var validationCode = Guid.NewGuid().ToString();
-        await unvalidatedUsersRepo.AddValidationCode(validationCode, user.Username);
+        await unvalidatedUsersRepo.AddValidationCodeAsync(user.Username, validationCode);
 
         await smpt.SendVerificationCodeAsync(user.Email, validationCode);
     }
@@ -78,4 +78,6 @@ public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpServ
         if (await repository.UsernameExists(username))
             throw new DuplicatedUsernameException(username);
     }
+    
+    public static bool IsExpiredUser(User user) => (DateTime.UtcNow - user.CreatedAt > TimeSpan.FromDays(7)) && !user.Verified;
 }

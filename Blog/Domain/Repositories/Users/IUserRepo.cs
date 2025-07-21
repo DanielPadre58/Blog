@@ -12,4 +12,5 @@ public interface IUserRepo
     public Task<bool> UsernameExists(string username);
     public Task<List<User>> GetByUsernameUncapitalized(string username);
     public Task<User> VerifyUser(string username);
+    public Task<List<string>> RemoveUnverifiedUsers();
 }

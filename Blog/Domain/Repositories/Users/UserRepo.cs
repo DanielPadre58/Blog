@@ -41,11 +41,11 @@ public class UserRepo(BlogContext context) : IUserRepo
 
         return user;
     }
-    
+
     public async Task<User> GetByUsername(string username)
     {
         var user = await context.Users
-                       .FirstOrDefaultAsync(u => u.Username == username)??
+                       .FirstOrDefaultAsync(u => u.Username == username) ??
                    throw new NotFoundException($"User with username {username} not found");
 
         return user;
@@ -64,13 +64,29 @@ public class UserRepo(BlogContext context) : IUserRepo
             .ToListAsync();
     }
 
-    public Task<User> VerifyUser(string username)
+    public async Task<User> VerifyUser(string username)
     {
-        var user = context.Users.FirstOrDefaultAsync(u => u.Username == username);
+        var user = await GetByUsername(username);
 
-        user.Result.Verify();
-        context.SaveChangesAsync();
+        user.Verify();
+        await context.SaveChangesAsync();
 
         return user;
+    }
+
+    public async Task<List<string>> RemoveUnverifiedUsers()
+    {
+        var expirationDate = DateTime.UtcNow.AddDays(-7);
+
+        var unverifiedUsers = await context.Users
+            .Where(u => u.CreatedAt < expirationDate && !u.Verified)
+            .ToListAsync();
+
+        context.Users.RemoveRange(unverifiedUsers);
+        await context.SaveChangesAsync();
+
+        Console.WriteLine($"Removed {unverifiedUsers.Count} unverified users.");
+        
+        return unverifiedUsers.Select(u => u.Username).ToList();
     }
 }
