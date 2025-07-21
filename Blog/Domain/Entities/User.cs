@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Blog.Application.Dtos.Users;
 using Blog.Shared.Exceptions;
 
 namespace Blog.Domain.Entities;
@@ -8,21 +7,21 @@ namespace Blog.Domain.Entities;
 public class User
 {
     public int Id { get; set; }
-    public bool verified { get; set; } = false;
+    public bool Verified { get; set; } = false;
     [Required] public required string Username { get; set; }
     [Required] public required string Email { get; set; }
     [Required] public required string Password { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public DateTime? Birthday { get; set; }
-    public DateTime Created { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     [JsonIgnore] public ICollection<Post>? Posts { get; set; }
     [JsonIgnore] public ICollection<Comment>? Comments { get; set; }
     [JsonIgnore] public ICollection<Post>? LikedPosts { get; set; }
     
     public void Verify()
     {
-        verified = true;
+        Verified = true;
     }
     
     public void Validate()
