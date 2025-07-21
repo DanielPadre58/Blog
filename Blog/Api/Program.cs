@@ -1,9 +1,15 @@
+using System.Text;
+using Blog.Application.External_Services;
 using Blog.Application.Services.Users;
 using Blog.DbContext;
 using Blog.Domain.Repositories.Posts;
 using Blog.Domain.Repositories.Users;
+using Blog.Shared.Security;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,14 +21,39 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddDbContext<BlogContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
+                         throw new InvalidOperationException(
+                             "Missing configuration: Default database connection string"));
 });
+builder.Services.AddSingleton<IConnectionMultiplexer>(opt =>
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("DockerRedisConnection") ??
+                                  throw new InvalidOperationException(
+                                      "Missing configuration: Redis database connection string")));
 
 builder.Services.AddControllers();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["AppSettings:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["AppSettings:Audience"],
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)),
+            ValidateIssuerSigningKey = true
+        };
+    });
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostRepo, PostRepo>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<ISmtpService, SmtpService>();
+builder.Services.AddScoped<IUnvalidatedUsersRepo, UnvalidatedUsersRepo>();
 
 var app = builder.Build();
 
