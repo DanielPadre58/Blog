@@ -21,10 +21,10 @@ public class SmtpService(IConfiguration configuration) : ISmtpService
                    "\n\nNote: This code is valid for 10 minutes."
         };
         
-        await SendMessage(message);
+        await SendMessageAsync(message);
     }
 
-    private async Task SendMessage(MimeMessage message)
+    private async Task SendMessageAsync(MimeMessage message)
     {
         using var client = new SmtpClient();
         
