@@ -8,6 +8,7 @@ namespace Blog.Domain.Entities;
 public class User
 {
     public int Id { get; set; }
+    public bool verified { get; set; } = false;
     [Required] public required string Username { get; set; }
     [Required] public required string Email { get; set; }
     [Required] public required string Password { get; set; }
@@ -17,6 +18,11 @@ public class User
     [JsonIgnore] public ICollection<Post>? Posts { get; set; }
     [JsonIgnore] public ICollection<Comment>? Comments { get; set; }
     [JsonIgnore] public ICollection<Post>? LikedPosts { get; set; }
+    
+    public void Verify()
+    {
+        verified = true;
+    }
     
     public void Validate()
     {
