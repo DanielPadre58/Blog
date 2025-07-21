@@ -5,8 +5,9 @@ namespace Blog.Application.Services.Users;
 
 public interface IUserService
 {
-    Task<UserDto> Create(UserCreationDto user);
+    Task Create(UserCreationDto user);
     Task Delete(string username);
     Task<UserDto> Edit(string username, UserUpdateDto updatedUser);
     Task<UserDto> GetByUsername(string username);
+    Task<UserDto> VerifyUser(string username);
 }

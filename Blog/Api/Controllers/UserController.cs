@@ -17,10 +17,9 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            var createdUser = await service.Create(user);
-            response.SuccessResponse("User created successfully", createdUser);
-
-            return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, response);
+            await service.Create(user);
+            response.SuccessResponse("User created successfully");
+            return CreatedAtAction(nameof(GetUser), new { username = user.Username }, response);
         }
         catch (DuplicatedUsernameException ex)
         {
@@ -90,7 +89,7 @@ public class UserController(IUserService service) : ControllerBase
     public async Task<ActionResult<ResponseModel<UserDto>>> GetUser(string username)
     {
         var response = new ResponseModel<UserDto>();
-        
+
         try
         {
             var users = await service.GetByUsername(username);
@@ -100,6 +99,35 @@ public class UserController(IUserService service) : ControllerBase
         catch (NotFoundException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (UnverifiedUserException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
+    }
+
+    [HttpPost("verify/{validationCode}")]
+    public async Task<ActionResult<ResponseModel<UserDto>>> VerifyUser(string validationCode)
+    {
+        var response = new ResponseModel<UserDto>();
+
+        try
+        {
+            var user = await service.VerifyUser(validationCode);
+            response.SuccessResponse("User verified successfully", user);
+            return Ok(response);
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (UnverifiedUserException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {

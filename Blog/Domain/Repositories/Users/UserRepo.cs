@@ -63,4 +63,14 @@ public class UserRepo(BlogContext context) : IUserRepo
             .Where(u => u.Username.ToLower() == username)
             .ToListAsync();
     }
+
+    public Task<User> VerifyUser(string username)
+    {
+        var user = context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+        user.Result.Verify();
+        context.SaveChangesAsync();
+
+        return user;
+    }
 }
