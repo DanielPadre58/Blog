@@ -1,5 +1,6 @@
 using System.Text;
 using Blog.Application.External_Services;
+using Blog.Application.Services.Authentication;
 using Blog.Application.Services.Users;
 using Blog.DbContext;
 using Blog.Domain.Repositories.Posts;
@@ -55,6 +56,7 @@ builder.Services.AddScoped<IPostRepo, PostRepo>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUnvalidatedUsersRepo, UnvalidatedUsersRepo>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 builder.Services.AddHostedService<ExpiredUsersCleaner>();
 

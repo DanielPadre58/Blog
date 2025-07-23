@@ -8,11 +8,10 @@ public class PasswordHasher : IPasswordHasher
 {
     public string HashPassword(User user, string password) =>  new PasswordHasher<User>().HashPassword(user, password);
     
-    public void VerifyPassword(User user, string hashedPassword, string password)
+    public bool PasswordEquals(User user, string password)
     {
-        var result = new PasswordHasher<User>().VerifyHashedPassword(user, hashedPassword, password);
+        var result = new PasswordHasher<User>().VerifyHashedPassword(user, user.Password, password);
 
-        if (result == PasswordVerificationResult.Failed)
-            throw new IncorrectPasswordException();
+        return result == PasswordVerificationResult.Success;
     }
 }
