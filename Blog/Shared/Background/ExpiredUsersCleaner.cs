@@ -17,8 +17,8 @@ public class ExpiredUsersCleaner(IServiceProvider serviceProvider) : BackgroundS
             var unvalidatedUsersRepo = scope.ServiceProvider.GetRequiredService<IUnvalidatedUsersRepo>();
             var userRepo = scope.ServiceProvider.GetRequiredService<IUserRepo>();
 
-            List<string> expiredUsers = await userRepo.RemoveUnverifiedUsers();
-            await unvalidatedUsersRepo.RemoveExpiredValidationCodes(expiredUsers);
+            List<string> expiredUsers = await userRepo.RemoveUnverifiedUsersAsync();
+            await unvalidatedUsersRepo.RemoveExpiredValidationCodesAsync(expiredUsers);
         }
     }
 }

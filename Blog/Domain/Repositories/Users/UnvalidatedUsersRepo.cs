@@ -37,7 +37,7 @@ public class UnvalidatedUsersRepo : IUnvalidatedUsersRepo
         return username.ToString();
     }
 
-    public async Task RemoveExpiredValidationCodes(List<string> expiredUsernames)
+    public async Task RemoveExpiredValidationCodesAsync(List<string> expiredUsernames)
     {
         foreach (var username in expiredUsernames)
         {

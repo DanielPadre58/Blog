@@ -8,7 +8,7 @@ namespace Blog.Domain.Repositories.Users;
 
 public class UserRepo(BlogContext context) : IUserRepo
 {
-    public async Task<User> Create(User user)
+    public async Task<User> CreateAsync(User user)
     {
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
@@ -16,17 +16,17 @@ public class UserRepo(BlogContext context) : IUserRepo
         return user;
     }
 
-    public async Task Delete(string username)
+    public async Task DeleteAsync(string username)
     {
-        var user = await GetByUsername(username);
+        var user = await GetByUsernameAsync(username);
 
         context.Users.Remove(user);
         await context.SaveChangesAsync();
     }
 
-    public async Task<User> Edit(string username, UserUpdateDto updatedUser)
+    public async Task<User> EditAsync(string username, UserUpdateDto updatedUser)
     {
-        var user = await GetByUsername(username);
+        var user = await GetByUsernameAsync(username);
 
         if (updatedUser.Username != null)
             user.Username = updatedUser.Username;
@@ -42,7 +42,7 @@ public class UserRepo(BlogContext context) : IUserRepo
         return user;
     }
 
-    public async Task<User> GetByUsername(string username)
+    public async Task<User> GetByUsernameAsync(string username)
     {
         var user = await context.Users
                        .FirstOrDefaultAsync(u => u.Username == username) ??
@@ -51,22 +51,22 @@ public class UserRepo(BlogContext context) : IUserRepo
         return user;
     }
 
-    public async Task<bool> UsernameExists(string username)
+    public async Task<bool> UsernameExistsAsync(string username)
     {
         return await context.Users
             .AnyAsync(u => u.Username == username);
     }
 
-    public async Task<List<User>> GetByUsernameUncapitalized(string username)
+    public async Task<List<User>> GetByUsernameUncapitalizedAsync(string username)
     {
         return await context.Users
             .Where(u => u.Username.ToLower() == username)
             .ToListAsync();
     }
 
-    public async Task<User> VerifyUser(string username)
+    public async Task<User> VerifyUserAsync(string username)
     {
-        var user = await GetByUsername(username);
+        var user = await GetByUsernameAsync(username);
 
         user.Verify();
         await context.SaveChangesAsync();
@@ -74,12 +74,12 @@ public class UserRepo(BlogContext context) : IUserRepo
         return user;
     }
 
-    public async Task<List<string>> RemoveUnverifiedUsers()
+    public async Task<List<string>> RemoveUnverifiedUsersAsync()
     {
         var expirationDate = DateTime.UtcNow.AddDays(-7);
 
         var unverifiedUsers = await context.Users
-            .Where(u => u.CreatedAt < expirationDate && !u.Verified)
+            .Where(u => u.CreatedAt < expirationDate && !u.IsVerified)
             .ToListAsync();
 
         context.Users.RemoveRange(unverifiedUsers);

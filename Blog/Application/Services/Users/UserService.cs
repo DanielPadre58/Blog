@@ -10,7 +10,7 @@ namespace Blog.Application.Services.Users;
 
 public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpService smpt, IUnvalidatedUsersRepo unvalidatedUsersRepo) : IUserService
 {
-    public async Task Create(UserCreationDto userDto)
+    public async Task CreateAsync(UserCreationDto userDto)
     {
         await ValidateUsernameUniquenessAsync(userDto.Username);
         
@@ -25,42 +25,42 @@ public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpServ
         
         user.Validate();
 
-        var createdUser = await repository.Create(user);
+        var createdUser = await repository.CreateAsync(user);
 
         await SendVerificationEmailAsync(createdUser);
     }
 
-    public async Task Delete(string username)
+    public async Task DeleteAsync(string username)
     {
-        await repository.Delete(username);
+        await repository.DeleteAsync(username);
     }
 
-    public async Task<UserDto> Edit(string username, UserUpdateDto updatedUser)
+    public async Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser)
     {
         updatedUser.Validate();
 
         if (updatedUser.Username != null)
             await ValidateUsernameUniquenessAsync(updatedUser.Username);
 
-        var user = await repository.Edit(username, updatedUser);
+        var user = await repository.EditAsync(username, updatedUser);
         return new UserDto(user);
     }
 
-    public async Task<UserDto> GetByUsername(string username)
+    public async Task<UserDto> GetByUsernameAsync(string username)
     {
-        var user = await repository.GetByUsername(username.ToLower());
+        var user = await repository.GetByUsernameAsync(username.ToLower());
         
-        if(!user.Verified)
+        if(!user.IsVerified)
             throw new UnverifiedUserException();
         
         return new UserDto(user);
     }
 
-    public async Task<UserDto> VerifyUser(string validationCode)
+    public async Task<UserDto> VerifyUserAsync(string validationCode)
     {
         var username = unvalidatedUsersRepo.ValidateUserAsync(validationCode).Result;
 
-        var user = await repository.VerifyUser(username);
+        var user = await repository.VerifyUserAsync(username);
 
         return new UserDto(user);
     }
@@ -75,9 +75,9 @@ public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpServ
 
     private async Task ValidateUsernameUniquenessAsync(string username)
     {
-        if (await repository.UsernameExists(username))
+        if (await repository.UsernameExistsAsync(username))
             throw new DuplicatedUsernameException(username);
     }
     
-    public static bool IsExpiredUser(User user) => (DateTime.UtcNow - user.CreatedAt > TimeSpan.FromDays(7)) && !user.Verified;
+    public static bool IsExpiredUser(User user) => (DateTime.UtcNow - user.CreatedAt > TimeSpan.FromDays(7)) && !user.IsVerified;
 }

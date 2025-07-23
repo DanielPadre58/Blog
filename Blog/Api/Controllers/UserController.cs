@@ -17,7 +17,7 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            await service.Create(user);
+            await service.CreateAsync(user);
             response.SuccessResponse("User created successfully");
             return CreatedAtAction(nameof(GetUser), new { username = user.Username }, response);
         }
@@ -42,7 +42,7 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            await service.Delete(username);
+            await service.DeleteAsync(username);
             response.SuccessResponse("User deleted successfully");
             return Ok(response);
         }
@@ -63,7 +63,7 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            var user = await service.Edit(username, updatedUser);
+            var user = await service.EditAsync(username, updatedUser);
             response.SuccessResponse("User edited successfully", user);
             return Ok(response);
         }
@@ -92,7 +92,7 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            var users = await service.GetByUsername(username);
+            var users = await service.GetByUsernameAsync(username);
             response.SuccessResponse("User retrieved successfully", users);
             return Ok(response);
         }
@@ -117,7 +117,7 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            var user = await service.VerifyUser(validationCode);
+            var user = await service.VerifyUserAsync(validationCode);
             response.SuccessResponse("User verified successfully", user);
             return Ok(response);
         }
