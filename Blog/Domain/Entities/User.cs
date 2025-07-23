@@ -7,7 +7,7 @@ namespace Blog.Domain.Entities;
 public class User
 {
     public int Id { get; set; }
-    public bool Verified { get; set; } = false;
+    public bool IsVerified { get; set; } = false;
     [Required] public required string Username { get; set; }
     [Required] public required string Email { get; set; }
     [Required] public required string Password { get; set; }
@@ -21,7 +21,7 @@ public class User
     
     public void Verify()
     {
-        Verified = true;
+        IsVerified = true;
     }
     
     public void Validate()
