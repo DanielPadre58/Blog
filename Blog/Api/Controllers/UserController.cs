@@ -1,4 +1,5 @@
-﻿using Blog.Application.Dtos.User;
+﻿using Blog.Application.Dtos.Authentication;
+using Blog.Application.Dtos.User;
 using Blog.Application.Dtos.Users;
 using Blog.Application.Services.Users;
 using Blog.Shared.Exceptions;
@@ -11,14 +12,14 @@ namespace Blog.Api.Controllers;
 public class UserController(IUserService service) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<ResponseModel<UserDto>>> CreateUser(UserCreationDto user)
+    public async Task<ActionResult<ResponseModel<TokenDto>>> CreateUser(UserCreationDto user)
     {
-        var response = new ResponseModel<UserDto>();
+        var response = new ResponseModel<TokenDto>();
 
         try
         {
-            await service.CreateAsync(user);
-            response.SuccessResponse("User created successfully");
+            var token = await service.CreateAsync(user);
+            response.SuccessResponse("User created successfully", new TokenDto(user.Username, token));
             return CreatedAtAction(nameof(GetUser), new { username = user.Username }, response);
         }
         catch (DuplicatedUsernameException ex)
@@ -26,6 +27,27 @@ public class UserController(IUserService service) : ControllerBase
             return Conflict(response.ErrorResponse(ex.Message));
         }
         catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
+    }
+    
+    [HttpPost("login")]
+    public async Task<ActionResult<ResponseModel<TokenDto>>> LoginUser([FromBody] LoginDto loginData)
+    {
+        var response = new ResponseModel<TokenDto>();
+
+        try
+        {
+            var token = await service.LoginAsync(loginData);
+            response.SuccessResponse("Login successful", new TokenDto(loginData.Username, token));
+            return Ok(response);
+        }
+        catch (InvalidAuthenticationData ex)
         {
             return BadRequest(response.ErrorResponse(ex.Message));
         }

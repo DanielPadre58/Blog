@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Blog.Application.Dtos.Authentication;
 using Blog.Application.Dtos.Users;
 using Blog.Domain.Entities;
 using Blog.Domain.Repositories.Users;

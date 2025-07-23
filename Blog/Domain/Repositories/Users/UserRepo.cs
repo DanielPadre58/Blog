@@ -57,6 +57,12 @@ public class UserRepo(BlogContext context) : IUserRepo
             .AnyAsync(u => u.Username == username);
     }
 
+    public async Task<bool> EmailExistsAsync(string email)
+    {
+        return await context.Users
+            .AnyAsync(u => u.Email == email);
+    }
+
     public async Task<List<User>> GetByUsernameUncapitalizedAsync(string username)
     {
         return await context.Users

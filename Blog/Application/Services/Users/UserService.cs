@@ -1,6 +1,8 @@
-﻿using Blog.Application.Dtos.User;
+﻿using Blog.Application.Dtos.Authentication;
+using Blog.Application.Dtos.User;
 using Blog.Application.Dtos.Users;
 using Blog.Application.External_Services;
+using Blog.Application.Services.Authentication;
 using Blog.Domain.Entities;
 using Blog.Domain.Repositories.Users;
 using Blog.Shared.Exceptions;
@@ -8,11 +10,18 @@ using Blog.Shared.Security;
 
 namespace Blog.Application.Services.Users;
 
-public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpService smpt, IUnvalidatedUsersRepo unvalidatedUsersRepo) : IUserService
+public class UserService(
+    IUserRepo repository, 
+    IPasswordHasher hasher, 
+    ISmtpService smpt, 
+    IUnvalidatedUsersRepo unvalidatedUsersRepo,
+    IAuthenticationService authenticationService) : IUserService
 {
-    public async Task CreateAsync(UserCreationDto userDto)
+    public async Task<string> CreateAsync(UserCreationDto userDto)
     {
         await ValidateUsernameUniquenessAsync(userDto.Username);
+        
+        await ValidateEmailUniquenessAsync(userDto.Email);
         
         var user = new User
         {
@@ -28,6 +37,15 @@ public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpServ
         var createdUser = await repository.CreateAsync(user);
 
         await SendVerificationEmailAsync(createdUser);
+        
+        return authenticationService.GenerateJwtTokenAsync(createdUser);
+    }
+
+    public async Task<string> LoginAsync(LoginDto loginData)
+    {
+        var token = await authenticationService.AuthenticateAsync(loginData);
+        
+        return token;
     }
 
     public async Task DeleteAsync(string username)
@@ -77,6 +95,12 @@ public class UserService(IUserRepo repository, IPasswordHasher hasher, ISmtpServ
     {
         if (await repository.UsernameExistsAsync(username))
             throw new DuplicatedUsernameException(username);
+    }
+    
+    private async Task ValidateEmailUniquenessAsync(string email)
+    {
+        if (await repository.EmailExistsAsync(email))
+            throw new DuplicatedUsernameException(email);
     }
     
     public static bool IsExpiredUser(User user) => (DateTime.UtcNow - user.CreatedAt > TimeSpan.FromDays(7)) && !user.IsVerified;

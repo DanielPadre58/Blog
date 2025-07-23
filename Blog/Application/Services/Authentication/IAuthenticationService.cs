@@ -1,4 +1,5 @@
-﻿using Blog.Application.Dtos.Users;
+﻿using Blog.Application.Dtos.Authentication;
+using Blog.Application.Dtos.Users;
 using Blog.Domain.Entities;
 
 namespace Blog.Application.Services.Authentication;

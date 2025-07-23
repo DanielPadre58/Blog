@@ -1,3 +1,3 @@
-﻿namespace Blog.Application.Dtos.Users;
+﻿namespace Blog.Application.Dtos.Authentication;
 
 public record LoginDto(string Username, string Password);

@@ -10,6 +10,7 @@ public interface IUserRepo
     public Task<User> EditAsync(string username, UserUpdateDto updatedUser);
     public Task<User> GetByUsernameAsync(string username);
     public Task<bool> UsernameExistsAsync(string username);
+    public Task<bool> EmailExistsAsync(string email);
     public Task<User> VerifyUserAsync(string username);
     public Task<List<string>> RemoveUnverifiedUsersAsync();
 }
