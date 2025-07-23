@@ -26,6 +26,10 @@ public class UserController(IUserService service) : ControllerBase
         {
             return Conflict(response.ErrorResponse(ex.Message));
         }
+        catch (DuplicatedEmailException ex)
+        {
+            return Conflict(response.ErrorResponse(ex.Message));
+        }
         catch (InvalidFieldsException ex)
         {
             return BadRequest(response.ErrorResponse(ex.Message));

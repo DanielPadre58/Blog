@@ -60,7 +60,18 @@ public class UserService(
         if (updatedUser.Username != null)
             await ValidateUsernameUniquenessAsync(updatedUser.Username);
 
-        var user = await repository.EditAsync(username, updatedUser);
+        var user = await repository.GetByUsernameAsync(username);
+
+        if(!user.IsVerified)
+            throw new UnverifiedUserException();
+        
+        user.ChangeUsername(updatedUser.Username);
+        user.ChangeFirstName(updatedUser.FirstName);
+        user.ChangeLastName(updatedUser.LastName);
+        user.ChangeBirthday(updatedUser.Birthday);
+
+        repository.SaveAsync();
+        
         return new UserDto(user);
     }
 
@@ -100,7 +111,7 @@ public class UserService(
     private async Task ValidateEmailUniquenessAsync(string email)
     {
         if (await repository.EmailExistsAsync(email))
-            throw new DuplicatedUsernameException(email);
+            throw new DuplicatedEmailException(email);
     }
     
     public static bool IsExpiredUser(User user) => (DateTime.UtcNow - user.CreatedAt > TimeSpan.FromDays(7)) && !user.IsVerified;

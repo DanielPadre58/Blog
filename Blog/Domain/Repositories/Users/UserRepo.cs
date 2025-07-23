@@ -8,6 +8,11 @@ namespace Blog.Domain.Repositories.Users;
 
 public class UserRepo(BlogContext context) : IUserRepo
 {
+    public async Task SaveAsync()
+    {
+        await context.SaveChangesAsync();
+    }
+    
     public async Task<User> CreateAsync(User user)
     {
         await context.Users.AddAsync(user);
@@ -22,24 +27,6 @@ public class UserRepo(BlogContext context) : IUserRepo
 
         context.Users.Remove(user);
         await context.SaveChangesAsync();
-    }
-
-    public async Task<User> EditAsync(string username, UserUpdateDto updatedUser)
-    {
-        var user = await GetByUsernameAsync(username);
-
-        if (updatedUser.Username != null)
-            user.Username = updatedUser.Username;
-        if (updatedUser.FirstName != null)
-            user.FirstName = updatedUser.FirstName;
-        if (updatedUser.LastName != null)
-            user.LastName = updatedUser.LastName;
-        if (updatedUser.Birthday != null)
-            user.Birthday = updatedUser.Birthday;
-
-        await context.SaveChangesAsync();
-
-        return user;
     }
 
     public async Task<User> GetByUsernameAsync(string username)

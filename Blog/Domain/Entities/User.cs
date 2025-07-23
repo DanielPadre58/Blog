@@ -18,25 +18,87 @@ public class User
     [JsonIgnore] public ICollection<Post>? Posts { get; set; }
     [JsonIgnore] public ICollection<Comment>? Comments { get; set; }
     [JsonIgnore] public ICollection<Post>? LikedPosts { get; set; }
-    
+
+    public void ChangeUsername(string? username)
+    {
+        if (username == null)
+            return;
+        
+        ValidateUsername(username);
+        Username = username;
+    }
+
+    public void ChangeFirstName(string? name)
+    {
+        if(name == null)
+            return;
+        
+        ValidateName(name);
+        FirstName = name;
+    }
+
+    public void ChangeLastName(string? name)
+    {
+        if(name == null)
+            return;
+        
+        ValidateName(name);
+        LastName = name;
+    }
+
+    public void ChangeBirthday(DateTime? birthday)
+    {
+        if (!birthday.HasValue)
+            return;
+
+        ValidateBirthday(birthday.Value);
+        Birthday = birthday;
+    }
+
     public void Verify()
     {
         IsVerified = true;
     }
-    
+
     public void Validate()
     {
-        if (string.IsNullOrWhiteSpace(Username))
-            throw new InvalidFieldsException("Username cannot be null or empty.", nameof(Username));
-        if (string.IsNullOrWhiteSpace(Email))
-            throw new InvalidFieldsException("Email cannot be null or empty.", nameof(Email));
-        if (string.IsNullOrWhiteSpace(Password))
-            throw new InvalidFieldsException("Password cannot be null or empty.", nameof(Password));
-        if(FirstName != null && string.IsNullOrWhiteSpace(FirstName))
-            throw new InvalidFieldsException("First name cannot be empty.", nameof(FirstName));
-        if(LastName != null && string.IsNullOrWhiteSpace(LastName))
-            throw new InvalidFieldsException("Last name cannot be empty.", nameof(LastName));
-        if (Birthday > DateTime.Now)
-            throw new InvalidFieldsException("Birthday cannot be in the future.", nameof(Birthday));
+        ValidateUsername(Username);
+        ValidateEmail(Email);
+        ValidatePassword(Password);
+        ValidateName(FirstName);
+        ValidateName(LastName);
+
+        if (Birthday.HasValue)
+            ValidateBirthday(Birthday.Value);
+    }
+
+    private void ValidateBirthday(DateTime birthday)
+    {
+        if (birthday > DateTime.Now)
+            throw new InvalidFieldsException("Birthday cannot be in the future.", nameof(birthday));
+    }
+
+    private void ValidateName(string name)
+    {
+        if (name != null && string.IsNullOrWhiteSpace(name))
+            throw new InvalidFieldsException("First name cannot be empty.", nameof(name));
+    }
+
+    private void ValidatePassword(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+            throw new InvalidFieldsException("Password cannot be null or empty.", nameof(password));
+    }
+
+    private void ValidateEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new InvalidFieldsException("Email cannot be null or empty.", nameof(email));
+    }
+
+    private void ValidateUsername(string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty.", nameof(username));
     }
 }
