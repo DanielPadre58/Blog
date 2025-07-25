@@ -6,8 +6,9 @@ namespace Blog.Application.Services.Users;
 
 public interface IUserService
 {
-    Task<string> CreateAsync(UserCreationDto user);
-    Task<string> LoginAsync(LoginDto loginData);
+    Task<TokenDto> CreateAsync(UserCreationDto user);
+    Task<TokenDto> LoginAsync(LoginDto loginData);
+    Task<TokenDto> RefreshAsync(string refreshToken, string username);
     Task DeleteAsync(string username);
     Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser);
     Task<UserDto> GetByUsernameAsync(string username);

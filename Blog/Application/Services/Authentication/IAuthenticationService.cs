@@ -7,5 +7,7 @@ namespace Blog.Application.Services.Authentication;
 public interface IAuthenticationService
 {
     public Task<string> AuthenticateAsync(LoginDto loginData);
-    public string GenerateJwtTokenAsync(User user);
+    public string GenerateJwtToken(User user);
+    public Task<string> GenerateRefreshTokenAsync(string username);
+    public Task VerifyRefreshTokenAsync(string username, string refreshToken);
 }

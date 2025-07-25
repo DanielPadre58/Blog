@@ -20,16 +20,13 @@ public class UnvalidatedUsersRepo : IUnvalidatedUsersRepo
 
         var setUsername = await _db.StringSetAsync($"validation:{username}", code, ttl);
         var setCode = await _db.StringSetAsync($"code:{code}", username, ttl);
-
-        if (!setUsername || !setCode)
-            throw new Exception("Failed to store validation code.");
     }
 
     public async Task<string?> ValidateUserAsync(string code)
     {
         var username = await _db.StringGetAsync($"code:{code}");
         if (username.IsNullOrEmpty)
-            return null;
+            throw new NotFoundException("Validation code not found or has expired.");
 
         await _db.KeyDeleteAsync($"code:{code}");
         await _db.KeyDeleteAsync($"validation:{username}");

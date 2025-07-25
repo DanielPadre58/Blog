@@ -1,8 +1,10 @@
 ﻿using Blog.Application.Dtos.Authentication;
 using Blog.Application.Dtos.User;
 using Blog.Application.Dtos.Users;
+using Blog.Application.Services.Authentication;
 using Blog.Application.Services.Users;
 using Blog.Shared.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.Api.Controllers;
@@ -18,8 +20,8 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            var token = await service.CreateAsync(user);
-            response.SuccessResponse("User created successfully", new TokenDto(user.Username, token));
+            var tokens = await service.CreateAsync(user);
+            response.SuccessResponse("User created successfully", tokens);
             return CreatedAtAction(nameof(GetUser), new { username = user.Username }, response);
         }
         catch (DuplicatedUsernameException ex)
@@ -47,11 +49,15 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            var token = await service.LoginAsync(loginData);
-            response.SuccessResponse("Login successful", new TokenDto(loginData.Username, token));
+            var tokens = await service.LoginAsync(loginData);
+            response.SuccessResponse("Login successful", tokens);
             return Ok(response);
         }
         catch (InvalidAuthenticationData ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (InvalidFieldsException ex)
         {
             return BadRequest(response.ErrorResponse(ex.Message));
         }
@@ -60,8 +66,38 @@ public class UserController(IUserService service) : ControllerBase
             return StatusCode(500, response.ErrorResponse(ex.Message));
         }
     }
+    
+    [HttpPost("refresh")]
+    public async Task<ActionResult<ResponseModel<TokenDto>>> RefreshToken([FromBody] RefreshTokenDto refreshToken)
+    {
+        var response = new ResponseModel<TokenDto>();
+
+        try
+        {
+            var newToken = await service.RefreshAsync(refreshToken.refreshToken, refreshToken.username);
+            response.SuccessResponse("Token refreshed successfully", newToken);
+            return Ok(response);
+        }
+        catch (UnverifiedUserException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (InvalidAuthenticationData ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
+    }
 
     [HttpDelete("{username}")]
+    [Authorize]
     public async Task<ActionResult<ResponseModel<UserDto>>> DeleteUser(string username)
     {
         var response = new ResponseModel<UserDto>();
@@ -83,6 +119,7 @@ public class UserController(IUserService service) : ControllerBase
     }
 
     [HttpPut("{username}")]
+    [Authorize]
     public async Task<ActionResult<ResponseModel<UserDto>>> EditUser(string username, [FromBody] UserUpdateDto updatedUser)
     {
         var response = new ResponseModel<UserDto>();
@@ -97,10 +134,6 @@ public class UserController(IUserService service) : ControllerBase
         {
             return BadRequest(response.ErrorResponse(ex.Message));
         }
-        catch (DuplicatedUsernameException ex)
-        {
-            return Conflict(response.ErrorResponse(ex.Message));
-        }
         catch (NotFoundException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
@@ -112,6 +145,7 @@ public class UserController(IUserService service) : ControllerBase
     }
 
     [HttpGet("{username}")]
+    [Authorize]
     public async Task<ActionResult<ResponseModel<UserDto>>> GetUser(string username)
     {
         var response = new ResponseModel<UserDto>();
@@ -137,6 +171,7 @@ public class UserController(IUserService service) : ControllerBase
     }
 
     [HttpPost("verify/{validationCode}")]
+    [Authorize]
     public async Task<ActionResult<ResponseModel<UserDto>>> VerifyUser(string validationCode)
     {
         var response = new ResponseModel<UserDto>();
@@ -150,10 +185,6 @@ public class UserController(IUserService service) : ControllerBase
         catch (NotFoundException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
-        }
-        catch (UnverifiedUserException ex)
-        {
-            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
