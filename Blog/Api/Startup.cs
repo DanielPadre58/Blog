@@ -1,6 +1,7 @@
 using System.Text;
 using Blog.Application.External_Services;
 using Blog.Application.Services.Authentication;
+using Blog.Application.Services.Posts;
 using Blog.Application.Services.Users;
 using Blog.DbContext;
 using Blog.Domain.Repositories;
@@ -99,6 +100,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostRepo, PostRepo>();
+builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUnvalidatedUsersRepo, UnvalidatedUsersRepo>();

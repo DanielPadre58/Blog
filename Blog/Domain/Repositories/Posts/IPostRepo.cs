@@ -5,5 +5,6 @@ namespace Blog.Domain.Repositories.Posts;
 
 public interface IPostRepo
 {
+    public Task CreateAsync(Post post);
     public Task<Post> GetByIdAsync(int id);
 }

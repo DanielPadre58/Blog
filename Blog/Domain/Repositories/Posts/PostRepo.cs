@@ -7,6 +7,12 @@ namespace Blog.Domain.Repositories.Posts;
 
 public class PostRepo(BlogContext context) : IPostRepo
 {
+    public Task CreateAsync(Post post)
+    {
+        context.Posts.Add(post);
+        return context.SaveChangesAsync();
+    }
+
     public Task<Post> GetByIdAsync(int id)
     {
         return context.Posts

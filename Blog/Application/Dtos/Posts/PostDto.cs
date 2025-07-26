@@ -24,7 +24,7 @@ public record PostDto(
         post.Likes,
         post.Dislikes,
         post.CreatedAt,
-        post.UpdatedAt ?? post.CreatedAt,
+        post.UpdatedAt,
         new UserDto(post.Author),
         post.Tags.ToArray()
     ) { }
