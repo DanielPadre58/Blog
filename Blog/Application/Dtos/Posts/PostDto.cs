@@ -14,4 +14,18 @@ public record PostDto(
     DateTime UpdatedAt,
     UserDto author,
     Tag[] tags
-);
+)
+{
+    public PostDto(Post post) : this(
+        post.Id,
+        post.Title,
+        post.Content,
+        post.ImageUrl,
+        post.Likes,
+        post.Dislikes,
+        post.CreatedAt,
+        post.UpdatedAt ?? post.CreatedAt,
+        new UserDto(post.Author),
+        post.Tags.ToArray()
+    ) { }
+}
