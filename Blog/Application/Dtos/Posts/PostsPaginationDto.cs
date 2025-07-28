@@ -1,4 +1,4 @@
 ﻿
 namespace Blog.Application.Dtos.Posts;
 
-public record PostsPaginationDto(int Page, int PageSize, string? AuthorUsername, string? Title, List<string>? Tags);
+public record PostsPaginationDto(PageInfo page, string? AuthorUsername, string? Title, List<string>? Tags);

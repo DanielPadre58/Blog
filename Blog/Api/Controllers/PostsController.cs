@@ -20,7 +20,7 @@ public class PostsController(IPostService service) : ControllerBase
 
         try
         {
-            var post = await service.CreateAsync(dto, authorUsername);
+            var post = await service.CreateAsync(dto, authorUsername!);
             response.SuccessResponse("Post created successfully");
             return CreatedAtAction(nameof(GetPostById), new { id = post.Id }, response);
         }
@@ -76,7 +76,7 @@ public class PostsController(IPostService service) : ControllerBase
 
         try
         {
-            var posts = await service.GetAllAsync(pageInfo, filter, username);
+            var posts = await service.GetAllAsync(pageInfo, filter, username!);
             response.SuccessResponse("Posts retrieved successfully", posts);
             return Ok(response);
         }
@@ -100,7 +100,7 @@ public class PostsController(IPostService service) : ControllerBase
 
         try
         {
-            var post = await service.LikePostAsync(id, username);
+            var post = await service.LikePostAsync(id, username!);
             response.SuccessResponse("Post liked successfully", post);
             return Ok(response);
         }
@@ -127,7 +127,7 @@ public class PostsController(IPostService service) : ControllerBase
 
         try
         {
-            var post = await service.DislikePostAsync(id, username);
+            var post = await service.DislikePostAsync(id, username!);
             response.SuccessResponse("Post disliked successfully", post);
             return Ok(response);
         }
@@ -144,33 +144,30 @@ public class PostsController(IPostService service) : ControllerBase
             return StatusCode(500, response.ErrorResponse(ex.Message));
         }
     }
-        
-        
-        
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+    [HttpGet("/users/{username}")]
+    [Authorize]
+    public async Task<ActionResult<ResponseModel<PostDto>>> GetPostsByUsername(
+        [FromRoute] string username,
+        [FromQuery] PageInfo pageInfo,
+        [FromQuery] UserPostsFilter filter = UserPostsFilter.MINE)
+    {
+        var response = new ResponseModel<PostDto>();
+
+        try
+        {
+            var posts = await service.GetByUsernameAsync(username, pageInfo, filter);
+            response.SuccessResponse("Posts retrieved successfully", posts);
+            return Ok(response);
+        }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message)); 
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 }

@@ -12,27 +12,27 @@ public class PostRepo(BlogContext context) : IPostRepo
         await context.SaveChangesAsync();
     }
     
-    public Task CreateAsync(Post post)
+    public async  Task CreateAsync(Post post)
     {
         context.Posts.Add(post);
-        return context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
-    public Task<Post> GetByIdAsync(int id)
+    public async Task<Post> GetByIdAsync(int id)
     {
-        return context.Posts
+        return await context.Posts
             .Include(p => p.Author)
             .Include(p => p.Tags)
             .FirstOrDefaultAsync(p => p.Id == id) ??
                throw new NotFoundException($"Post with ID {id} not found.");
     }
 
-    public Task<List<Post>> GetAllAsync(int page, int pageSize)
+    public async Task<List<Post>> GetAllAsync(int page, int pageSize)
     {
         if (page < 1 || pageSize < 1)
             throw new InvalidFieldsException("Page and page size must be greater than zero.");
 
-        return context.Posts
+        return await context.Posts
             .Include(p => p.Author)
             .Include(p => p.Tags)
             .OrderByDescending(p => p.CreatedAt)
@@ -84,14 +84,14 @@ public class PostRepo(BlogContext context) : IPostRepo
         return await context.Posts
             .Include(p => p.Author)
             .Include(p => p.Tags)
-            .Where(p => tags.All(name => p.Tags.Any(t => t.Name == name)))
+            .Where(p => tags.All(name => p.Tags!.Any(t => t.Name == name)))
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
     }
 
-    public Task<List<Post>> GetByAuthorAsync(int page, int pageSize, string authorUsername)
+    public async Task<List<Post>> GetByAuthorAsync(int page, int pageSize, string authorUsername)
     {
         if (page < 1 || pageSize < 1)
             throw new InvalidFieldsException("Page and page size must be greater than zero.");
@@ -99,10 +99,65 @@ public class PostRepo(BlogContext context) : IPostRepo
         if (string.IsNullOrWhiteSpace(authorUsername))
             throw new InvalidFieldsException("Author username cannot be null or empty.");
 
-        return context.Posts
+        return await context.Posts
             .Include(p => p.Author)
             .Include(p => p.Tags)
             .Where(p => p.Author.Username.ToLower().StartsWith(authorUsername.ToLower()))
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<Post>> GetUserLikesAsync(int page, int pageSize, string username)
+    {
+        if (page < 1 || pageSize < 1)
+            throw new InvalidFieldsException("Page and page size must be greater than zero.");
+
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty.");
+
+        return await context.Posts
+            .Include(p => p.Author)
+            .Include(p => p.Tags)
+            .Where(p => p.LikedByUsers.Any(u => u.Username == username))
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<Post>> GetUserDislikesAsync(int page, int pageSize, string username)
+    {
+        if (page < 1 || pageSize < 1)
+            throw new InvalidFieldsException("Page and page size must be greater than zero.");
+
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty.");
+
+        return await context.Posts
+            .Include(p => p.Author)
+            .Include(p => p.Tags)
+            .Where(p => p.DislikedByUsers.Any(u => u.Username == username))
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<Post>> GetUserCommentedPostsAsync(int page, int pageSize, string username)
+    {
+        if (page < 1 || pageSize < 1)
+            throw new InvalidFieldsException("Page and page size must be greater than zero.");
+
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty.");
+
+        return await context.Posts
+            .Include(p => p.Author)
+            .Include(p => p.Tags)
+            .Include(p => p.Comments)
+            .Where(p => p.Comments.Any(c => c.Author.Username == username))
             .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

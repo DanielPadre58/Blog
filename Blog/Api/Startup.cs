@@ -1,4 +1,5 @@
 using System.Text;
+using Blog.Application.Dtos.Posts;
 using Blog.Application.External_Services;
 using Blog.Application.Services.Authentication;
 using Blog.Application.Services.Posts;
@@ -54,6 +55,15 @@ builder.Services.AddSwaggerGen(c =>
     {
         Type = "string",
         Enum = Enum.GetNames(typeof(PostFilter))
+            .Select(n => new OpenApiString(n))
+            .Cast<IOpenApiAny>()
+            .ToList()
+    });
+    
+    c.MapType<UserPostsFilter>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Enum = Enum.GetNames(typeof(UserPostsFilter))
             .Select(n => new OpenApiString(n))
             .Cast<IOpenApiAny>()
             .ToList()

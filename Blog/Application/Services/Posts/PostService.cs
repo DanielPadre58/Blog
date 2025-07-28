@@ -57,7 +57,10 @@ public class PostService(
         switch (filter)
         {
             case PostFilter.AUTHOR:
-                posts = await repository.GetByAuthorAsync(pageInfo.Page, pageInfo.PageSize, pageInfo.AuthorUsername ?? string.Empty);
+                posts = await repository.GetByAuthorAsync(
+                    pageInfo.page.pageNumber, 
+                    pageInfo.page.pageSize, 
+                    pageInfo.AuthorUsername ?? string.Empty);
                 break;
             case PostFilter.TAGS:
                 var tags = pageInfo.Tags ?? new List<string>();
@@ -65,16 +68,27 @@ public class PostService(
                 foreach (var tag in tags.Distinct())
                     if (await tagRepo.ExistsAsync(tag))
                         existingTags.Add(tag);
-                posts = await repository.GetByTagsAsync(pageInfo.Page, pageInfo.PageSize, existingTags);
+                
+                posts = await repository.GetByTagsAsync(
+                    pageInfo.page.pageNumber, 
+                    pageInfo.page.pageSize, 
+                    existingTags);
                 break;
             case PostFilter.LIKES:
-                posts = await repository.GetByLikesAsync(pageInfo.Page, pageInfo.PageSize);
+                posts = await repository.GetByLikesAsync(
+                    pageInfo.page.pageNumber, 
+                    pageInfo.page.pageSize);
                 break;
             case PostFilter.TITLE:
-                posts = await repository.GetByTitleAsync(pageInfo.Page, pageInfo.PageSize, pageInfo.Title ?? string.Empty);
+                posts = await repository.GetByTitleAsync(
+                    pageInfo.page.pageNumber, 
+                    pageInfo.page.pageSize, 
+                    pageInfo.Title ?? string.Empty);
                 break;
             case PostFilter.NONE:
-                posts = await repository.GetAllAsync(pageInfo.Page, pageInfo.PageSize);
+                posts = await repository.GetAllAsync(
+                    pageInfo.page.pageNumber, 
+                    pageInfo.page.pageSize);
                 break;
             default:
                 throw new InvalidFieldsException("Invalid post filter");
@@ -118,6 +132,58 @@ public class PostService(
         var disliked = await userService.DislikePostAsync(post, username);
 
         return new PostDto(post, false, disliked);
+    }
+
+    public async Task<List<PostDto>> GetByUsernameAsync(string username, PageInfo pageInfo, UserPostsFilter filter)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty");
+
+        if (pageInfo == null)
+            throw new InvalidFieldsException("Please provide pagination information");
+
+        List<Post> posts;
+        
+        switch (filter)
+        {
+            case UserPostsFilter.MINE:
+                posts = await repository.GetByAuthorAsync(
+                    pageInfo.pageNumber,
+                    pageInfo.pageSize,
+                    username);
+                break;
+            case UserPostsFilter.LIKED:
+                posts = await repository.GetUserLikesAsync(
+                    pageInfo.pageNumber, 
+                    pageInfo.pageSize,
+                    username);
+                break;
+            case UserPostsFilter.DISLIKED:
+                posts = await repository.GetUserDislikesAsync(
+                    pageInfo.pageNumber, 
+                    pageInfo.pageSize, 
+                    username);
+                break;
+            case UserPostsFilter.COMMENTED:
+                posts = await repository.GetUserCommentedPostsAsync(
+                    pageInfo.pageNumber, 
+                    pageInfo.pageSize, 
+                    username);
+                break;
+            default:
+                throw new InvalidFieldsException("Invalid post filter");
+        }
+        
+        var postDtos = new List<PostDto>();
+
+        foreach (var post in posts)
+        {
+            var liked = await userService.UserLikedAsync(post, username);
+            var disliked = await userService.UserDislikedAsync(post, username);
+            postDtos.Add(new PostDto(post, liked, disliked));
+        }
+
+        return postDtos;
     }
 
     private async Task<List<Tag>> VerifyTagsAsync(List<string>? tagsNames)

@@ -13,4 +13,7 @@ public interface IPostRepo
     public Task<List<Post>> GetByLikesAsync(int page, int pageSize);
     public Task<List<Post>> GetByTagsAsync(int page, int pageSize, List<string> tags);
     public Task<List<Post>> GetByAuthorAsync(int page, int pageSize, string authorUsername);
+    public Task<List<Post>> GetUserLikesAsync(int page, int pageSize, string username);
+    public Task<List<Post>> GetUserDislikesAsync(int page, int pageSize, string username);
+    public Task<List<Post>> GetUserCommentedPostsAsync(int page, int pageSize, string username);
 }

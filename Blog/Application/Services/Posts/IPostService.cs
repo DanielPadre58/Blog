@@ -10,4 +10,5 @@ public interface IPostService
     public Task<List<PostDto>> GetAllAsync(PostsPaginationDto pageInfo, PostFilter filter, string username);
     public Task<PostDto> LikePostAsync(int id, string username);
     public Task<PostDto> DislikePostAsync(int id, string username);
+    public Task<List<PostDto>> GetByUsernameAsync(string username, PageInfo pageInfo, UserPostsFilter filter);
 }
