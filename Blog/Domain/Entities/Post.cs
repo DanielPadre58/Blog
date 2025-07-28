@@ -13,7 +13,6 @@ public class Post
     public int Likes { get; set; } = 0;
     public int Dislikes { get; set; } = 0;
     public DateTime CreatedAt { get; set; } = DateTime.Now;
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
     public int AuthorId { get; set; }
     public User Author { get; set; }
     public ICollection<Tag>? Tags { get; set; } = new List<Tag>();

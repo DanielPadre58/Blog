@@ -11,7 +11,6 @@ public record PostDto(
     int Likes,
     int Dislikes,
     DateTime CreatedAt,
-    DateTime UpdatedAt,
     UserDto author,
     List<string> tags
     )
@@ -24,7 +23,6 @@ public record PostDto(
         post.Likes,
         post.Dislikes,
         post.CreatedAt,
-        post.UpdatedAt,
         new UserDto(post.Author),
         post.Tags.Select(tag => tag.Name).ToList()
     ) { }
