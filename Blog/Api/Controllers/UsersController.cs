@@ -1,7 +1,6 @@
 ﻿using Blog.Application.Dtos.Authentication;
 using Blog.Application.Dtos.User;
 using Blog.Application.Dtos.Users;
-using Blog.Application.Services.Authentication;
 using Blog.Application.Services.Users;
 using Blog.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -11,7 +10,7 @@ namespace Blog.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IUserService service) : ControllerBase
+public class UsersController(IUserService service) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<ResponseModel<TokenDto>>> CreateUser(UserCreationDto user)
@@ -20,8 +19,8 @@ public class UserController(IUserService service) : ControllerBase
 
         try
         {
-            var tokens = await service.CreateAsync(user);
-            response.SuccessResponse("User created successfully", tokens);
+            var username = await service.CreateAsync(user);
+            response.SuccessResponse($"User with username {username} created successfully, check your email to verify your account");
             return CreatedAtAction(nameof(GetUser), new { username = user.Username }, response);
         }
         catch (DuplicatedUsernameException ex)
@@ -171,20 +170,23 @@ public class UserController(IUserService service) : ControllerBase
     }
 
     [HttpPost("verify/{validationCode}")]
-    [Authorize]
-    public async Task<ActionResult<ResponseModel<UserDto>>> VerifyUser(string validationCode)
+    public async Task<ActionResult<ResponseModel<TokenDto>>> VerifyUser(string validationCode)
     {
-        var response = new ResponseModel<UserDto>();
+        var response = new ResponseModel<TokenDto>();
 
         try
         {
-            var user = await service.VerifyUserAsync(validationCode);
-            response.SuccessResponse("User verified successfully", user);
+            var token = await service.VerifyUserAsync(validationCode);
+            response.SuccessResponse("User verified successfully", token);
             return Ok(response);
         }
         catch (NotFoundException ex)
         {
             return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (UnverifiedUserException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {

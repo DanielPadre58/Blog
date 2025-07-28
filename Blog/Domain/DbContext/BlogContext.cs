@@ -49,5 +49,23 @@ public class BlogContext(DbContextOptions<BlogContext> options) : Microsoft.Enti
                     .WithMany()
                     .HasForeignKey("PostId")
                     .OnDelete(DeleteBehavior.Cascade));
+        
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.Author)
+            .WithMany(u => u.Comments)
+            .HasForeignKey(p => p.AuthorId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.Post)
+            .WithMany(p => p.Comments)
+            .HasForeignKey(p => p.PostId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Comment>()
+            .HasOne(c => c.Parent)
+            .WithMany(p => p.Replies)
+            .HasForeignKey(p => p.ParentId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

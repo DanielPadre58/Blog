@@ -12,7 +12,7 @@ public class PostRepo(BlogContext context) : IPostRepo
         await context.SaveChangesAsync();
     }
     
-    public async  Task CreateAsync(Post post)
+    public async Task CreateAsync(Post post)
     {
         context.Posts.Add(post);
         await context.SaveChangesAsync();

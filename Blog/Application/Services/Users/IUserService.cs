@@ -7,13 +7,13 @@ namespace Blog.Application.Services.Users;
 
 public interface IUserService
 {
-    Task<TokenDto> CreateAsync(UserCreationDto user);
+    Task<string> CreateAsync(UserCreationDto user);
     Task<TokenDto> LoginAsync(LoginDto loginData);
     Task<TokenDto> RefreshAsync(string refreshToken, string username);
     Task DeleteAsync(string username);
     Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser);
     Task<UserDto> GetByUsernameAsync(string username);
-    Task<UserDto> VerifyUserAsync(string username);
+    Task<TokenDto> VerifyUserAsync(string username);
     Task<bool> LikePostAsync(Post post, string username);
     Task<bool> DislikePostAsync(Post post, string username);
     Task<bool> UserLikedAsync(Post post, string username);

@@ -22,6 +22,9 @@ public class AuthenticationService(
         try
         {
             var user = await repository.GetByUsernameAsync(loginData.Username);
+            
+            if(!user.IsVerified)
+                throw new UnverifiedUserException();
 
             if (!passwordHasher.PasswordEquals(user, loginData.Password))
                 throw new InvalidAuthenticationData();

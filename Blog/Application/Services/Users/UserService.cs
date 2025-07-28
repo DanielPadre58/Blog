@@ -19,7 +19,7 @@ public class UserService(
     IAuthenticationService authenticationService,
     IRedisRepo redisRepository) : IUserService
 {
-    public async Task<TokenDto> CreateAsync(UserCreationDto userDto)
+    public async Task<string> CreateAsync(UserCreationDto userDto)
     {
         if (userDto == null)
             throw new InvalidFieldsException("User data cannot be null.");
@@ -43,10 +43,7 @@ public class UserService(
 
         await SendVerificationEmailAsync(createdUser);
 
-        var token = authenticationService.GenerateJwtToken(createdUser);
-        var refreshTokenoken = await authenticationService.GenerateRefreshTokenAsync(createdUser.Username);
-
-        return new TokenDto(userDto.Username, token, refreshTokenoken);
+        return createdUser.Username;
     }
 
     public async Task<TokenDto> LoginAsync(LoginDto loginData)
@@ -72,9 +69,6 @@ public class UserService(
 
         var user = await repository.GetByUsernameAsync(username);
 
-        if (!user.IsVerified)
-            throw new UnverifiedUserException();
-
         await authenticationService.VerifyRefreshTokenAsync(username, refreshToken);
 
         var newToken = authenticationService.GenerateJwtToken(user);
@@ -97,9 +91,6 @@ public class UserService(
         updatedUser.Validate();
 
         var user = await repository.GetByUsernameAsync(username);
-
-        if (!user.IsVerified)
-            throw new UnverifiedUserException();
         
         user.ChangeFirstName(updatedUser.FirstName);
         user.ChangeLastName(updatedUser.LastName);
@@ -114,19 +105,19 @@ public class UserService(
     {
         var user = await repository.GetByUsernameAsync(username.ToLower());
 
-        if (!user.IsVerified)
-            throw new UnverifiedUserException();
-
         return new UserDto(user);
     }
 
-    public async Task<UserDto> VerifyUserAsync(string validationCode)
+    public async Task<TokenDto> VerifyUserAsync(string validationCode)
     {
         var username = await unvalidatedUsersRepo.ValidateUserAsync(validationCode);
 
         var user = await repository.VerifyUserAsync(username);
+        
+        var token = authenticationService.GenerateJwtToken(user);
+        var refreshTokenoken = await authenticationService.GenerateRefreshTokenAsync(user.Username);
 
-        return new UserDto(user);
+        return new TokenDto(user.Username, token, refreshTokenoken);
     }
     
     public async Task<bool> LikePostAsync(Post post, string username)
@@ -206,6 +197,4 @@ public class UserService(
         if (await repository.EmailExistsAsync(email))
             throw new DuplicatedEmailException(email);
     }
-
-    public static bool IsExpiredUser(User user) => (DateTime.UtcNow - user.CreatedAt > TimeSpan.FromDays(7)) && !user.IsVerified;
 }

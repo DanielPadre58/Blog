@@ -2,10 +2,12 @@ using System.Text;
 using Blog.Application.Dtos.Posts;
 using Blog.Application.External_Services;
 using Blog.Application.Services.Authentication;
+using Blog.Application.Services.Comments;
 using Blog.Application.Services.Posts;
 using Blog.Application.Services.Users;
 using Blog.Domain.DbContext;
 using Blog.Domain.Enums;
+using Blog.Domain.Repositories.Comments;
 using Blog.Domain.Repositories.Posts;
 using Blog.Domain.Repositories.Redis;
 using Blog.Domain.Repositories.Tags;
@@ -128,6 +130,8 @@ builder.Services.AddScoped<IUnvalidatedUsersRepo, UnvalidatedUsersRepo>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IRedisRepo, RedisRepo>();
 builder.Services.AddScoped<ITagRepo, TagRepo>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ICommentRepo, CommentRepo>();
 
 builder.Services.AddHostedService<ExpiredUsersCleaner>();
 

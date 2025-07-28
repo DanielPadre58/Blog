@@ -72,7 +72,7 @@ public class UserRepo(BlogContext context) : IUserRepo
 
     public async Task<List<string>> RemoveUnverifiedUsersAsync()
     {
-        var expirationDate = DateTime.UtcNow.AddDays(-7);
+        var expirationDate = DateTime.UtcNow.AddMinutes(-10);
 
         var unverifiedUsers = await context.Users
             .Where(u => u.CreatedAt < expirationDate && !u.IsVerified)

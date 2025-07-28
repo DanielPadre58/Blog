@@ -46,19 +46,19 @@ namespace Blog.Migrations
                     b.Property<int>("Likes")
                         .HasColumnType("int");
 
-                    b.Property<int>("PostId")
+                    b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReplyingToId")
+                    b.Property<int?>("PostId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("PostId");
+                    b.HasIndex("ParentId");
 
-                    b.HasIndex("ReplyingToId");
+                    b.HasIndex("PostId");
 
                     b.ToTable("Comments");
                 });
@@ -212,24 +212,24 @@ namespace Blog.Migrations
                     b.HasOne("Blog.Domain.Entities.User", "Author")
                         .WithMany("Comments")
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Blog.Domain.Entities.Comment", "Parent")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Blog.Domain.Entities.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Blog.Domain.Entities.Comment", "ReplyingTo")
-                        .WithMany("Replies")
-                        .HasForeignKey("ReplyingToId");
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Author");
 
-                    b.Navigation("Post");
+                    b.Navigation("Parent");
 
-                    b.Navigation("ReplyingTo");
+                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.Post", b =>
