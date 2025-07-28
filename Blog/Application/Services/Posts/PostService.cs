@@ -34,7 +34,7 @@ public class PostService(
 
         await repository.CreateAsync(post);
 
-        return new PostDto(post);
+        return new PostDto(post, false);
     }
 
     public async Task<PostDto> GetByIdAsync(int id)
@@ -44,10 +44,10 @@ public class PostService(
 
         var post = await repository.GetByIdAsync(id);
 
-        return new PostDto(post);
+        return new PostDto(post, false);
     }
 
-    public async Task<List<PostDto>> GetAllAsync(PostsPaginationDto pageInfo, PostFilter filter)
+    public async Task<List<PostDto>> GetAllAsync(PostsPaginationDto pageInfo, PostFilter filter, string username)
     {
         if (pageInfo == null)
             throw new InvalidFieldsException("Please provide pagination information");
@@ -80,15 +80,37 @@ public class PostService(
                 throw new InvalidFieldsException("Invalid post filter");
         }
 
-        return posts
-            .Select(post => new PostDto(post))
-            .ToList();
+        var postDtos = new List<PostDto>();
+
+        foreach (var post in posts)
+        {
+            var liked = await userService.UserLikedAsync(post, username);
+            postDtos.Add(new PostDto(post, liked));
+        }
+
+        return postDtos;
     }
-    
+
+    public async Task<PostDto> LikePostAsync(int id, string username)
+    {
+        if (id <= 0)
+            throw new InvalidFieldsException("Invalid post ID");
+
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty");
+
+        var post = await repository.GetByIdAsync(id);
+        post.Like();
+        await userService.LikePostAsync(post, username);
+        await repository.SaveAsync();
+
+        return new PostDto(post, true);
+    }
+
     private async Task<List<Tag>> VerifyTagsAsync(List<string>? tagsNames)
     {
         var result = new List<Tag>();
-        
+
         if (tagsNames == null)
             return result;
 

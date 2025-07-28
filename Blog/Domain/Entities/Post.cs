@@ -16,7 +16,9 @@ public class Post
     public int AuthorId { get; set; }
     public User Author { get; set; }
     public ICollection<Tag>? Tags { get; set; } = new List<Tag>();
-    [JsonIgnore] public ICollection<Comment> Comments { get; set; }
+    [JsonIgnore] public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    [JsonIgnore] public ICollection<User> LikedByUsers { get; set; } = new List<User>();
+    [JsonIgnore] public ICollection<User> DislikedByUsers { get; set; } = new List<User>();
 
     public void Validate()
     {
@@ -24,5 +26,15 @@ public class Post
             throw new InvalidFieldsException("Title cannot be null or empty.");
         if(string.IsNullOrEmpty(Content))
             throw new InvalidFieldsException("Content cannot be null or empty.");
+    }
+
+    public void Like()
+    {
+        Likes++;
+    }
+    
+    public void Dislike()
+    {
+        Dislikes++;
     }
 }

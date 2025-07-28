@@ -1,4 +1,4 @@
-﻿using Blog.DbContext;
+﻿using Blog.Domain.DbContext;
 using Blog.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 

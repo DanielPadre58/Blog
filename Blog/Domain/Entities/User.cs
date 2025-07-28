@@ -15,9 +15,10 @@ public class User
     public string? LastName { get; set; }
     public DateTime? Birthday { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    [JsonIgnore] public ICollection<Post>? Posts { get; set; }
-    [JsonIgnore] public ICollection<Comment>? Comments { get; set; }
-    [JsonIgnore] public ICollection<Post>? LikedPosts { get; set; }
+    [JsonIgnore] public ICollection<Post>? Posts { get; set; } = new List<Post>();
+    [JsonIgnore] public ICollection<Comment>? Comments { get; set; } = new List<Comment>();
+    [JsonIgnore] public ICollection<Post>? LikedPosts { get; set; } = new List<Post>();
+    [JsonIgnore] public ICollection<Post>? DislikedPosts { get; set; } = new List<Post>();
 
     public void ChangeUsername(string? username)
     {
@@ -100,5 +101,37 @@ public class User
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new InvalidFieldsException("Username cannot be null or empty.", nameof(username));
+    }
+    
+    public void LikePost(Post post)
+    {
+        if (LikedPosts.Any(p => p.Id == post.Id))
+            throw new InvalidFieldsException("You have already liked this post.");
+        
+        if (DislikedPost(post.Id))
+            DislikedPosts.Remove(DislikedPosts.First(p => p.Id == post.Id));
+
+        LikedPosts.Add(post);
+    }
+    
+    public void DislikePost(Post post)
+    {
+        if (DislikedPosts.Any(p => p.Id == post.Id))
+            throw new InvalidFieldsException("You have already disliked this post.");
+        
+        if (LikedPost(post.Id))
+            LikedPosts.Remove(LikedPosts.First(p => p.Id == post.Id));
+
+        DislikedPosts.Add(post);
+    }
+    
+    public bool LikedPost(int postId)
+    {
+        return LikedPosts.Any(p => p.Id == postId);
+    }
+    
+    public bool DislikedPost(int postId)
+    {
+        return DislikedPosts.Any(p => p.Id == postId);
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blog.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    [Migration("20250715192450_BasicModel")]
-    partial class BasicModel
+    [Migration("20250728124255_resolvedError")]
+    partial class resolvedError
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,6 +78,7 @@ namespace Blog.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -86,27 +87,42 @@ namespace Blog.Migrations
                     b.Property<int>("Dislikes")
                         .HasColumnType("int");
 
-                    b.PrimitiveCollection<string>("Images")
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Likes")
                         .HasColumnType("int");
 
-                    b.PrimitiveCollection<string>("Tags")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Blog.Domain.Entities.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Usages")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.User", b =>
@@ -120,12 +136,18 @@ namespace Blog.Migrations
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
@@ -143,19 +165,34 @@ namespace Blog.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("PostUser", b =>
+            modelBuilder.Entity("PostLikes", b =>
                 {
-                    b.Property<int>("LikedPostsId")
+                    b.Property<int>("PostId")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("LikedPostsId", "UserId");
+                    b.HasKey("PostId", "UserId");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PostUser");
+                    b.ToTable("PostLikes");
+                });
+
+            modelBuilder.Entity("PostTag", b =>
+                {
+                    b.Property<int>("PostsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostsId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("PostTag");
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.Comment", b =>
@@ -194,17 +231,32 @@ namespace Blog.Migrations
                     b.Navigation("Author");
                 });
 
-            modelBuilder.Entity("PostUser", b =>
+            modelBuilder.Entity("PostLikes", b =>
                 {
                     b.HasOne("Blog.Domain.Entities.Post", null)
                         .WithMany()
-                        .HasForeignKey("LikedPostsId")
+                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Blog.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PostTag", b =>
+                {
+                    b.HasOne("Blog.Domain.Entities.Post", null)
+                        .WithMany()
+                        .HasForeignKey("PostsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Blog.Domain.Entities.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

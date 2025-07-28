@@ -1,5 +1,4 @@
-﻿using Blog.Application.Dtos.Users;
-using Blog.DbContext;
+﻿using Blog.Domain.DbContext;
 using Blog.Domain.Entities;
 using Blog.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -32,8 +31,11 @@ public class UserRepo(BlogContext context) : IUserRepo
     public async Task<User> GetByUsernameAsync(string username)
     {
         var user = await context.Users
-                       .FirstOrDefaultAsync(u => u.Username == username) ??
-                   throw new NotFoundException($"User with username {username} not found");
+            .Include(u => u.LikedPosts)
+            .Include(u => u.Comments)
+            .Include(u => u.Posts)
+            .FirstOrDefaultAsync(u => u.Username == username) ??
+                throw new NotFoundException($"User with username {username} not found");
 
         return user;
     }

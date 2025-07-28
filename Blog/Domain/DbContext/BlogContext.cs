@@ -1,7 +1,7 @@
 ﻿using Blog.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Blog.DbContext;
+namespace Blog.Domain.DbContext;
 
 public class BlogContext(DbContextOptions<BlogContext> options) : Microsoft.EntityFrameworkCore.DbContext(options)
 {
@@ -18,8 +18,36 @@ public class BlogContext(DbContextOptions<BlogContext> options) : Microsoft.Enti
             .HasForeignKey(p => p.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.LikedPosts)
-            .WithMany();
+        modelBuilder.Entity<Post>()
+            .HasMany(p => p.LikedByUsers)
+            .WithMany(u => u.LikedPosts)
+            .UsingEntity<Dictionary<string, object>>(
+                "PostLikes",
+                j => j
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne<Post>()
+                    .WithMany()
+                    .HasForeignKey("PostId")
+                    .OnDelete(DeleteBehavior.Cascade));
+        
+        modelBuilder.Entity<Post>()
+            .HasMany(p => p.DislikedByUsers)
+            .WithMany(u => u.DislikedPosts)
+            .UsingEntity<Dictionary<string, object>>(
+                "PostDislikes",
+                j => j
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne<Post>()
+                    .WithMany()
+                    .HasForeignKey("PostId")
+                    .OnDelete(DeleteBehavior.Cascade));
     }
 }

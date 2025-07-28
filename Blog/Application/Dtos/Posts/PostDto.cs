@@ -10,18 +10,20 @@ public record PostDto(
     string ImageUrl,
     int Likes,
     int Dislikes,
+    bool likedByUser,
     DateTime CreatedAt,
     UserDto author,
     List<string> tags
     )
-{
-    public PostDto(Post post) : this(
+{ 
+    public PostDto(Post post, bool likedPost) : this(
         post.Id,
         post.Title,
         post.Content,
         post.ImageUrl,
         post.Likes,
         post.Dislikes,
+        likedPost,
         post.CreatedAt,
         new UserDto(post.Author),
         post.Tags.Select(tag => tag.Name).ToList()

@@ -1,4 +1,4 @@
-﻿using Blog.DbContext;
+﻿using Blog.Domain.DbContext;
 using Blog.Domain.Entities;
 using Blog.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +7,11 @@ namespace Blog.Domain.Repositories.Posts;
 
 public class PostRepo(BlogContext context) : IPostRepo
 {
+    public async Task SaveAsync()
+    {
+        await context.SaveChangesAsync();
+    }
+    
     public Task CreateAsync(Post post)
     {
         context.Posts.Add(post);
@@ -30,6 +35,7 @@ public class PostRepo(BlogContext context) : IPostRepo
         return context.Posts
             .Include(p => p.Author)
             .Include(p => p.Tags)
+            .OrderByDescending(p => p.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

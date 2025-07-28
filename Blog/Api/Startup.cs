@@ -3,7 +3,7 @@ using Blog.Application.External_Services;
 using Blog.Application.Services.Authentication;
 using Blog.Application.Services.Posts;
 using Blog.Application.Services.Users;
-using Blog.DbContext;
+using Blog.Domain.DbContext;
 using Blog.Domain.Enums;
 using Blog.Domain.Repositories.Posts;
 using Blog.Domain.Repositories.Redis;

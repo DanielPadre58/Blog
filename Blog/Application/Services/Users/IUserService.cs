@@ -1,6 +1,7 @@
 ﻿using Blog.Application.Dtos.Authentication;
 using Blog.Application.Dtos.User;
 using Blog.Application.Dtos.Users;
+using Blog.Domain.Entities;
 
 namespace Blog.Application.Services.Users;
 
@@ -13,4 +14,6 @@ public interface IUserService
     Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser);
     Task<UserDto> GetByUsernameAsync(string username);
     Task<UserDto> VerifyUserAsync(string username);
+    Task LikePostAsync(Post post, string username);
+    Task<bool> UserLikedAsync(Post post, string username);
 }

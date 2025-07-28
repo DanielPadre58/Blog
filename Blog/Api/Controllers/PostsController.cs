@@ -13,7 +13,7 @@ public class PostsController(IPostService service) : ControllerBase
 {
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<PostDto>> CreatePost([FromBody] PostCreationDto dto)
+    public async Task<ActionResult<ResponseModel<PostDto>>> CreatePost([FromBody] PostCreationDto dto)
     {
         var response = new ResponseModel<PostDto>();
         var authorUsername = User.Identity?.Name;
@@ -65,17 +65,24 @@ public class PostsController(IPostService service) : ControllerBase
         }
     }
 
-    [HttpGet("")]
+    [HttpGet]
     [Authorize]
-    public async Task<ActionResult<PostDto>> GetAllPosts([FromQuery] PostsPaginationDto pageInfo, [FromQuery] PostFilter filter = PostFilter.TITLE)
+    public async Task<ActionResult<ResponseModel<PostDto>>> GetAllPosts(
+        [FromQuery] PostsPaginationDto pageInfo, 
+        [FromQuery] PostFilter filter = PostFilter.TITLE)
     {
         var response = new ResponseModel<PostDto>();
+        var username = User.Identity?.Name;
 
         try
         {
-            var posts = await service.GetAllAsync(pageInfo, filter);
+            var posts = await service.GetAllAsync(pageInfo, filter, username);
             response.SuccessResponse("Posts retrieved successfully", posts);
             return Ok(response);
+        }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message)); 
         }
         catch (Exception e)
         {
@@ -83,4 +90,54 @@ public class PostsController(IPostService service) : ControllerBase
             throw;
         }
     }
+
+    [HttpPost("{id}/like")]
+    [Authorize]
+    public async Task<ActionResult<ResponseModel<PostDto>>> LikePost(int id)
+    {
+        var response = new ResponseModel<PostDto>();
+        var username = User.Identity?.Name;
+
+        try
+        {
+            var post = await service.LikePostAsync(id, username);
+            response.SuccessResponse("Post liked successfully", post);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
+    }
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
