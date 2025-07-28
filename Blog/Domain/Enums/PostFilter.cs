@@ -2,5 +2,5 @@
 
 public enum PostFilter
 {
-    Date, Likes, Title, Author, Tags
+    NONE, LIKES, TITLE, AUTHOR, TAGS
 }

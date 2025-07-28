@@ -13,8 +13,8 @@ public record PostDto(
     DateTime CreatedAt,
     DateTime UpdatedAt,
     UserDto author,
-    Tag[] tags
-)
+    List<string> tags
+    )
 {
     public PostDto(Post post) : this(
         post.Id,
@@ -26,6 +26,6 @@ public record PostDto(
         post.CreatedAt,
         post.UpdatedAt,
         new UserDto(post.Author),
-        post.Tags.ToArray()
+        post.Tags.Select(tag => tag.Name).ToList()
     ) { }
 }

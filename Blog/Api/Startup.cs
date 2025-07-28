@@ -4,15 +4,17 @@ using Blog.Application.Services.Authentication;
 using Blog.Application.Services.Posts;
 using Blog.Application.Services.Users;
 using Blog.DbContext;
-using Blog.Domain.Repositories;
+using Blog.Domain.Enums;
 using Blog.Domain.Repositories.Posts;
 using Blog.Domain.Repositories.Redis;
+using Blog.Domain.Repositories.Tags;
 using Blog.Domain.Repositories.Users;
 using Blog.Shared.Background;
 using Blog.Shared.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 
@@ -46,6 +48,15 @@ builder.Services.AddSwaggerGen(c =>
             },
             new string[] {}
         }
+    });
+    
+    c.MapType<PostFilter>(() => new OpenApiSchema
+    {
+        Type = "string",
+        Enum = Enum.GetNames(typeof(PostFilter))
+            .Select(n => new OpenApiString(n))
+            .Cast<IOpenApiAny>()
+            .ToList()
     });
 });
 
@@ -106,6 +117,7 @@ builder.Services.AddScoped<ISmtpService, SmtpService>();
 builder.Services.AddScoped<IUnvalidatedUsersRepo, UnvalidatedUsersRepo>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IRedisRepo, RedisRepo>();
+builder.Services.AddScoped<ITagRepo, TagRepo>();
 
 builder.Services.AddHostedService<ExpiredUsersCleaner>();
 

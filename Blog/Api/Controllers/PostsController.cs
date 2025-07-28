@@ -1,5 +1,6 @@
 ﻿using Blog.Application.Dtos.Posts;
 using Blog.Application.Services.Posts;
+using Blog.Domain.Enums;
 using Blog.Shared.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,14 @@ public class PostsController(IPostService service) : ControllerBase
             var post = await service.CreateAsync(dto, authorUsername);
             response.SuccessResponse("Post created successfully");
             return CreatedAtAction(nameof(GetPostById), new { id = post.Id }, response);
+        }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
         }
         catch (Exception e)
         {
@@ -53,6 +62,25 @@ public class PostsController(IPostService service) : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
+    }
+
+    [HttpGet("")]
+    [Authorize]
+    public async Task<ActionResult<PostDto>> GetAllPosts([FromQuery] PostsPaginationDto pageInfo, [FromQuery] PostFilter filter = PostFilter.TITLE)
+    {
+        var response = new ResponseModel<PostDto>();
+
+        try
+        {
+            var posts = await service.GetAllAsync(pageInfo, filter);
+            response.SuccessResponse("Posts retrieved successfully", posts);
+            return Ok(response);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
 }
