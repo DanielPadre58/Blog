@@ -104,13 +104,46 @@ public class PostsController(IPostService service) : ControllerBase
             response.SuccessResponse("Post liked successfully", post);
             return Ok(response);
         }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             return StatusCode(500, response.ErrorResponse(ex.Message));
         }
     }
         
-        
+    [HttpPost("{id}/dislike")]
+    [Authorize]
+    public async Task<ActionResult<ResponseModel<PostDto>>> DislikePost(int id)
+    {
+        var response = new ResponseModel<PostDto>();
+        var username = User.Identity?.Name;
+
+        try
+        {
+            var post = await service.DislikePostAsync(id, username);
+            response.SuccessResponse("Post disliked successfully", post);
+            return Ok(response);
+        }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, response.ErrorResponse(ex.Message));
+        }
+    }
         
         
         

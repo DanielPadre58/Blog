@@ -33,8 +33,18 @@ public class Post
         Likes++;
     }
     
+    public void RemoveLike()
+    {
+        Likes--;
+    }
+    
     public void Dislike()
     {
         Dislikes++;
+    }
+    
+    public void RemoveDislike()
+    {
+        Dislikes--;
     }
 }

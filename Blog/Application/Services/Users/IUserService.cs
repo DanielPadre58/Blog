@@ -14,6 +14,8 @@ public interface IUserService
     Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser);
     Task<UserDto> GetByUsernameAsync(string username);
     Task<UserDto> VerifyUserAsync(string username);
-    Task LikePostAsync(Post post, string username);
+    Task<bool> LikePostAsync(Post post, string username);
+    Task<bool> DislikePostAsync(Post post, string username);
     Task<bool> UserLikedAsync(Post post, string username);
+    Task<bool> UserDislikedAsync(Post post, string username);
 }

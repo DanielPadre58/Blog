@@ -106,23 +106,39 @@ public class User
     public void LikePost(Post post)
     {
         if (LikedPosts.Any(p => p.Id == post.Id))
-            throw new InvalidFieldsException("You have already liked this post.");
-        
+        {
+            LikedPosts.Remove(LikedPosts.First(p => p.Id == post.Id));
+            post.RemoveLike();
+            return;
+        }
+
         if (DislikedPost(post.Id))
+        {
             DislikedPosts.Remove(DislikedPosts.First(p => p.Id == post.Id));
+            post.RemoveDislike();
+        }
 
         LikedPosts.Add(post);
+        post.Like();
     }
     
     public void DislikePost(Post post)
     {
         if (DislikedPosts.Any(p => p.Id == post.Id))
-            throw new InvalidFieldsException("You have already disliked this post.");
-        
-        if (LikedPost(post.Id))
-            LikedPosts.Remove(LikedPosts.First(p => p.Id == post.Id));
+        {
+            DislikedPosts.Remove(DislikedPosts.First(p => p.Id == post.Id));
+            post.RemoveDislike();
+            return;
+        }
 
+        if (LikedPost(post.Id))
+        {
+            LikedPosts.Remove(LikedPosts.First(p => p.Id == post.Id));
+            post.RemoveLike();
+        }
+            
         DislikedPosts.Add(post);
+        post.Dislike();
     }
     
     public bool LikedPost(int postId)

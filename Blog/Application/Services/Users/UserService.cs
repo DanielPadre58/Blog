@@ -129,7 +129,7 @@ public class UserService(
         return new UserDto(user);
     }
     
-    public async Task LikePostAsync(Post post, string username)
+    public async Task<bool> LikePostAsync(Post post, string username)
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new InvalidFieldsException("Username cannot be null or empty");
@@ -141,6 +141,24 @@ public class UserService(
         
         user.LikePost(post);
         await repository.SaveAsync();
+        
+        return user.LikedPost(post.Id);
+    }
+
+    public async Task<bool> DislikePostAsync(Post post, string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty");
+        
+        if (post == null)
+            throw new InvalidFieldsException("Post cannot be null");
+
+        var user = await repository.GetByUsernameAsync(username);
+        
+        user.DislikePost(post);
+        await repository.SaveAsync();
+        
+        return user.DislikedPost(post.Id);
     }
 
     public async Task<bool> UserLikedAsync(Post post, string username)
@@ -154,6 +172,19 @@ public class UserService(
         var user = await repository.GetByUsernameAsync(username);
 
         return user.LikedPost(post.Id);
+    }
+
+    public async Task<bool> UserDislikedAsync(Post post, string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty");
+        
+        if (post == null)
+            throw new InvalidFieldsException("Post cannot be null");
+        
+        var user = await repository.GetByUsernameAsync(username);
+
+        return user.DislikedPost(post.Id);
     }
 
     private async Task SendVerificationEmailAsync(User user)
