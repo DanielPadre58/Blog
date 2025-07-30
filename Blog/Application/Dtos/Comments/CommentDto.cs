@@ -12,9 +12,7 @@ public record CommentDto(
     bool likedByUser,
     bool dislikedByUser,
     DateTime commentDate,
-    UserDto author,
-    PostDto post,
-    CommentDto? Parent
+    UserDto author
 )
 {
     public CommentDto(Comment comment) : this(
@@ -25,9 +23,7 @@ public record CommentDto(
         false,
         false,
         comment.CommentDate,
-        new UserDto(comment.Author),
-        comment.Post is not null ? new PostDto(comment.Post) : null,
-        comment.Parent is not null ? new CommentDto(comment.Parent) : null
+        new UserDto(comment.Author)
     )
     {
     }
@@ -40,9 +36,7 @@ public record CommentDto(
         liked,
         disliked,
         comment.CommentDate,
-        new UserDto(comment.Author),
-        comment.Post is not null ? new PostDto(comment.Post) : null,
-        comment.Parent is not null ? new CommentDto(comment.Parent) : null
+        new UserDto(comment.Author)
     )
     {
     }

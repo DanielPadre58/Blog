@@ -19,6 +19,8 @@ public class User
     [JsonIgnore] public ICollection<Comment>? Comments { get; set; } = new List<Comment>();
     [JsonIgnore] public ICollection<Post>? LikedPosts { get; set; } = new List<Post>();
     [JsonIgnore] public ICollection<Post>? DislikedPosts { get; set; } = new List<Post>();
+    [JsonIgnore] public ICollection<Comment>? LikedComments { get; set; } = new List<Comment>();
+    [JsonIgnore] public ICollection<Comment>? DislikedComments { get; set; } = new List<Comment>();
 
     public void ChangeUsername(string? username)
     {
@@ -122,6 +124,25 @@ public class User
         post.Like();
     }
     
+    public void LikeComment(Comment comment)
+    {
+        if (LikedComments.Any(c => c.Id == comment.Id))
+        {
+            LikedComments.Remove(LikedComments.First(c => c.Id == comment.Id));
+            comment.RemoveLike();
+            return;
+        }
+
+        if (DislikedPost(comment.Id))
+        {
+            DislikedComments.Remove(DislikedComments.First(c => c.Id == comment.Id));
+            comment.RemoveDislike();
+        }
+
+        LikedComments.Add(comment); 
+        comment.Like();
+    }
+    
     public void DislikePost(Post post)
     {
         if (DislikedPosts.Any(p => p.Id == post.Id))
@@ -141,13 +162,42 @@ public class User
         post.Dislike();
     }
     
+    public void DislikeComment(Comment comment)
+    {
+        if (DislikedComments.Any(c => c.Id == comment.Id))
+        {
+            DislikedComments.Remove(DislikedComments.First(c => c.Id == comment.Id));
+            comment.RemoveDislike();
+            return;
+        }
+
+        if (LikedPost(comment.Id))
+        {
+            LikedComments.Remove(LikedComments.First(c => c.Id == comment.Id));
+            comment.RemoveLike();
+        }
+
+        DislikedComments.Add(comment);
+        comment.Dislike();
+    }
+    
     public bool LikedPost(int postId)
     {
         return LikedPosts.Any(p => p.Id == postId);
     }
     
+    public bool LikedComment(int commentId)
+    {
+        return LikedComments.Any(c => c.Id == commentId);
+    }
+    
     public bool DislikedPost(int postId)
     {
         return DislikedPosts.Any(p => p.Id == postId);
+    }
+    
+    public bool DislikedComment(int commentId)
+    {
+        return DislikedComments.Any(c => c.Id == commentId);
     }
 }

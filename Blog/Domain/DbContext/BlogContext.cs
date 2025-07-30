@@ -67,5 +67,37 @@ public class BlogContext(DbContextOptions<BlogContext> options) : Microsoft.Enti
             .WithMany(p => p.Replies)
             .HasForeignKey(p => p.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Comment>()
+            .HasMany(c => c.LikedByUsers)
+            .WithMany(u => u.LikedComments)
+            .UsingEntity<Dictionary<string, object>>(
+                "CommentLikes",
+                j => j
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne<Comment>()
+                    .WithMany()
+                    .HasForeignKey("CommentId")
+                    .OnDelete(DeleteBehavior.Cascade));
+        
+        modelBuilder.Entity<Comment>()
+            .HasMany(c => c.DislikedByUsers)
+            .WithMany(u => u.DislikedComments)
+            .UsingEntity<Dictionary<string, object>>(
+                "CommentDislikes",
+                j => j
+                    .HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne<Comment>()
+                    .WithMany()
+                    .HasForeignKey("CommentId")
+                    .OnDelete(DeleteBehavior.Cascade));
     }
 }

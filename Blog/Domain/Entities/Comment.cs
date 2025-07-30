@@ -16,5 +16,27 @@ public class Comment
     public Post? Post { get; set; }
     public int? ParentId { get; set; }
     public Comment? Parent { get; set; }
-    [JsonIgnore] public ICollection<Comment>? Replies { get; set; }
+    [JsonIgnore] public ICollection<Comment>? Replies { get; set; } = new List<Comment>();
+    [JsonIgnore] public ICollection<User> LikedByUsers { get; set; } = new List<User>();
+    [JsonIgnore] public ICollection<User> DislikedByUsers { get; set; } = new List<User>();
+    
+    public void Like()
+    {
+        Likes++;
+    }
+    
+    public void RemoveLike()
+    {
+        Likes--;
+    }
+    
+    public void Dislike()
+    {
+        Dislikes++;
+    }
+    
+    public void RemoveDislike()
+    {
+        Dislikes--;
+    }
 }

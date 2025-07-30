@@ -115,7 +115,7 @@ public class PostService(
             throw new InvalidFieldsException("Username cannot be null or empty");
 
         var post = await repository.GetByIdAsync(id);
-        var liked = await userService.LikePostAsync(post, username);
+        var liked = await userService.LikeAsync(post, username);
 
         return new PostDto(post, liked, false);
     }
@@ -129,7 +129,7 @@ public class PostService(
             throw new InvalidFieldsException("Username cannot be null or empty");
 
         var post = await repository.GetByIdAsync(id);
-        var disliked = await userService.DislikePostAsync(post, username);
+        var disliked = await userService.DislikeAsync(post, username);
 
         return new PostDto(post, false, disliked);
     }
