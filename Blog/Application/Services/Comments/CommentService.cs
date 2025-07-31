@@ -22,11 +22,12 @@ public class CommentService(
 
         if (dto.parentId != null && dto.postId != null)
             throw new InvalidFieldsException("A comment cannot be both a reply and a top-level comment.");
-        
+
         var author = await userService.GetByUsernameAsync(authorUsername);
-        
+
         var comment = new Comment
         {
+            isReply = dto.parentId is null,
             Content = dto.Content,
             PostId = dto.postId,
             ParentId = dto.parentId,
@@ -34,8 +35,21 @@ public class CommentService(
         };
 
         await repository.CreateAsync(comment);
-        
+
         return new CommentDto(comment);
+    }
+
+    public async Task DeleteAsync(int commentId, string loggedUsername)
+    {
+        var comment = await repository.GetByIdAsync(commentId);
+
+        var isCommentAuthor = comment.Author.Username == loggedUsername;
+        var isPostAuthor = !comment.isReply && comment.Post?.Author.Username == loggedUsername;
+
+        if (!isCommentAuthor && !isPostAuthor)
+            throw new UnauthorizedAccessException("Only the author of the comment or the author of the post can access this feature");
+
+        await repository.DeleteAsync(comment);
     }
 
     public async Task<List<CommentDto>> GetByPostAsync(int postId, string username)
@@ -46,7 +60,7 @@ public class CommentService(
         await postService.GetByIdAsync(postId);
 
         var comments = await repository.GetByPostAsync(postId);
-        
+
         var commentDtos = new List<CommentDto>();
 
         foreach (var comment in comments)
@@ -67,7 +81,7 @@ public class CommentService(
         await repository.GetByIdAsync(parentId);
 
         var comments = await repository.GetByParentAsync(parentId);
-        
+
         var commentDtos = new List<CommentDto>();
 
         foreach (var comment in comments)
@@ -79,7 +93,7 @@ public class CommentService(
 
         return commentDtos;
     }
-    
+
     public async Task<CommentDto> LikeCommentAsync(int id, string username)
     {
         if (id <= 0)

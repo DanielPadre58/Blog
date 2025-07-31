@@ -33,6 +33,8 @@ public class UserRepo(BlogContext context) : IUserRepo
         var user = await context.Users
             .Include(u => u.LikedPosts)
             .Include(u => u.DislikedPosts)
+            .Include(u => u.LikedComments)
+            .Include(u => u.DislikedComments)
             .Include(u => u.Comments)
             .Include(u => u.Posts)
             .FirstOrDefaultAsync(u => u.Username == username) ??

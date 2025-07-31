@@ -6,6 +6,7 @@ using Blog.Application.Services.Comments;
 using Blog.Application.Services.Posts;
 using Blog.Application.Services.Users;
 using Blog.Domain.DbContext;
+using Blog.Domain.Entities;
 using Blog.Domain.Enums;
 using Blog.Domain.Repositories.Comments;
 using Blog.Domain.Repositories.Posts;
@@ -78,6 +79,7 @@ builder.Services.AddDbContext<BlogContext>(options =>
                          throw new InvalidOperationException(
                              "Missing configuration: Default database connection string"));
 });
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(opt =>
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("DockerRedisConnection") ??
                                   throw new InvalidOperationException(

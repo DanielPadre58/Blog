@@ -37,6 +37,37 @@ public class PostsController(IPostService service) : ControllerBase
             return StatusCode(500, response.ErrorResponse(e.Message));
         }
     }
+
+    [HttpDelete("postId")]
+    [Authorize]
+    public async Task<ActionResult<ResponseModel<PostDto>>> DeletePost(int postId)
+    {
+        var response = new ResponseModel<PostDto>();
+        var username =  User.Identity?.Name;
+
+        try
+        {
+            await service.DeleteAsync(postId, username);
+            response.SuccessResponse("Post Deleted successfully");
+            return Ok(response);
+        }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(response.ErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, response.ErrorResponse(e.Message));
+        }
+    }
     
     [HttpGet("{id}")]
     [Authorize]

@@ -105,99 +105,101 @@ public class User
             throw new InvalidFieldsException("Username cannot be null or empty.", nameof(username));
     }
     
-    public void LikePost(Post post)
+    public void Like<T>(T interactable) where T : class
     {
-        if (LikedPosts.Any(p => p.Id == post.Id))
+        if (interactable is Post post)
         {
-            LikedPosts.Remove(LikedPosts.First(p => p.Id == post.Id));
-            post.RemoveLike();
-            return;
-        }
-
-        if (DislikedPost(post.Id))
-        {
-            DislikedPosts.Remove(DislikedPosts.First(p => p.Id == post.Id));
-            post.RemoveDislike();
-        }
-
-        LikedPosts.Add(post);
-        post.Like();
-    }
-    
-    public void LikeComment(Comment comment)
-    {
-        if (LikedComments.Any(c => c.Id == comment.Id))
-        {
-            LikedComments.Remove(LikedComments.First(c => c.Id == comment.Id));
-            comment.RemoveLike();
-            return;
-        }
-
-        if (DislikedPost(comment.Id))
-        {
-            DislikedComments.Remove(DislikedComments.First(c => c.Id == comment.Id));
-            comment.RemoveDislike();
-        }
-
-        LikedComments.Add(comment); 
-        comment.Like();
-    }
-    
-    public void DislikePost(Post post)
-    {
-        if (DislikedPosts.Any(p => p.Id == post.Id))
-        {
-            DislikedPosts.Remove(DislikedPosts.First(p => p.Id == post.Id));
-            post.RemoveDislike();
-            return;
-        }
-
-        if (LikedPost(post.Id))
-        {
-            LikedPosts.Remove(LikedPosts.First(p => p.Id == post.Id));
-            post.RemoveLike();
-        }
+            if (LikedPosts.Any(p => p.Id == post.Id))
+            {
+                LikedPosts.Remove(LikedPosts.First(p => p.Id == post.Id));
+                post.RemoveLike(this);
+                return;
+            }
             
-        DislikedPosts.Add(post);
-        post.Dislike();
-    }
-    
-    public void DislikeComment(Comment comment)
-    {
-        if (DislikedComments.Any(c => c.Id == comment.Id))
-        {
-            DislikedComments.Remove(DislikedComments.First(c => c.Id == comment.Id));
-            comment.RemoveDislike();
-            return;
+            if (Liked<Post>(post.Id))
+            {
+                DislikedPosts.Remove(DislikedPosts.First(p => p.Id == post.Id));
+                post.RemoveDislike(this);
+            }
+            
+            LikedPosts.Add(post);
+            post.Like(this);
         }
 
-        if (LikedPost(comment.Id))
+        if (interactable is Comment comment)
         {
-            LikedComments.Remove(LikedComments.First(c => c.Id == comment.Id));
-            comment.RemoveLike();
+            if (LikedComments.Any(c => c.Id == comment.Id))
+            {
+                LikedComments.Remove(LikedComments.First(c => c.Id == comment.Id));
+                comment.RemoveLike(this);
+                return;
+            }
+
+            if (Disliked<Comment>(comment.Id))
+            {
+                DislikedComments.Remove(DislikedComments.First(c => c.Id == comment.Id));
+                comment.RemoveDislike(this);
+            }
+
+            LikedComments.Add(comment); 
+            comment.Like(this);
+        }
+    }
+    
+    public void Dislike<T>(T interactable) where T : class
+    {
+        if (interactable is Post post)
+        {
+            if (DislikedPosts.Any(p => p.Id == post.Id))
+            {
+                DislikedPosts.Remove(DislikedPosts.First(p => p.Id == post.Id));
+                post.RemoveDislike(this);
+                return;
+            }
+
+            if (Liked<Post>(post.Id))
+            {
+                LikedPosts.Remove(LikedPosts.First(p => p.Id == post.Id));
+                post.RemoveLike(this);
+            }
+            
+            DislikedPosts.Add(post);
+            post.Dislike(this);
         }
 
-        DislikedComments.Add(comment);
-        comment.Dislike();
+        if (interactable is Comment comment)
+        {
+            if (DislikedComments.Any(c => c.Id == comment.Id))
+            {
+                DislikedComments.Remove(DislikedComments.First(c => c.Id == comment.Id));
+                comment.RemoveDislike(this);
+                return;
+            }
+
+            if (Liked<Comment>(comment.Id))
+            {
+                LikedComments.Remove(LikedComments.First(c => c.Id == comment.Id));
+                comment.RemoveLike(this);
+            }
+
+            DislikedComments.Add(comment);
+            comment.Dislike(this);
+        }
     }
     
-    public bool LikedPost(int postId)
+    public bool Liked<T>(int interactableId) where T : class
     {
-        return LikedPosts.Any(p => p.Id == postId);
+        if (typeof(T) == typeof(Post))
+            return LikedPosts.Any(p => p.Id == interactableId);
+        
+        return typeof(T) == typeof(Comment) && LikedComments.Any(c => c.Id == interactableId);
     }
     
-    public bool LikedComment(int commentId)
+    public bool Disliked<T>(int interactableId) where T : class
     {
-        return LikedComments.Any(c => c.Id == commentId);
-    }
-    
-    public bool DislikedPost(int postId)
-    {
-        return DislikedPosts.Any(p => p.Id == postId);
-    }
-    
-    public bool DislikedComment(int commentId)
-    {
-        return DislikedComments.Any(c => c.Id == commentId);
+        if (typeof(T) == typeof(Post))
+            return DislikedPosts.Any(p => p.Id == interactableId);
+        
+        return typeof(T) == typeof(Comment) && DislikedComments.Any(c => c.Id == interactableId);
     }
 }

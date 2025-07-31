@@ -4,6 +4,7 @@ using Blog.Domain.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blog.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    partial class BlogContextModelSnapshot : ModelSnapshot
+    [Migration("20250731193623_UpdatedCommentLogic")]
+    partial class UpdatedCommentLogic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,8 +55,8 @@ namespace Blog.Migrations
                     b.Property<int?>("PostId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isReply")
-                        .HasColumnType("bit");
+                    b.Property<int>("Typeid")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -63,7 +66,25 @@ namespace Blog.Migrations
 
                     b.HasIndex("PostId");
 
+                    b.HasIndex("Typeid");
+
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("Blog.Domain.Entities.CommentType", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.ToTable("CommentTypes");
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.Post", b =>
@@ -258,11 +279,19 @@ namespace Blog.Migrations
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Blog.Domain.Entities.CommentType", "Type")
+                        .WithMany()
+                        .HasForeignKey("Typeid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Author");
 
                     b.Navigation("Parent");
 
                     b.Navigation("Post");
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.Post", b =>

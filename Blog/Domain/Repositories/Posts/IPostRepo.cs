@@ -7,6 +7,7 @@ public interface IPostRepo
 {
     public Task SaveAsync();
     public Task CreateAsync(Post post);
+    public Task DeleteAsync(Post post);
     public Task<Post> GetByIdAsync(int id);
     public Task<List<Post>> GetAllAsync(int page, int pageSize);
     public Task<List<Post>> GetByTitleAsync(int page, int pageSize, string title);

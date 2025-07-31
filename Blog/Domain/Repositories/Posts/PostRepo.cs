@@ -18,6 +18,12 @@ public class PostRepo(BlogContext context) : IPostRepo
         await context.SaveChangesAsync();
     }
 
+    public async Task DeleteAsync(Post post)
+    {
+        context.Posts.Remove(post);
+        await context.SaveChangesAsync();
+    }
+
     public async Task<Post> GetByIdAsync(int id)
     {
         return await context.Posts

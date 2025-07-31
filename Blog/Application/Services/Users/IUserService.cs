@@ -10,8 +10,8 @@ public interface IUserService
     Task<string> CreateAsync(UserCreationDto user);
     Task<TokenDto> LoginAsync(LoginDto loginData);
     Task<TokenDto> RefreshAsync(string refreshToken, string username);
-    Task DeleteAsync(string username);
-    Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser);
+    Task DeleteAsync(string username, string loggedUsername);
+    Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser, string loggedUsername);
     Task<UserDto> GetByUsernameAsync(string username);
     Task<TokenDto> VerifyUserAsync(string username);
     Task<bool> LikeAsync(Post post, string username);

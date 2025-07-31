@@ -37,6 +37,19 @@ public class PostService(
         return new PostDto(post);
     }
 
+    public async Task DeleteAsync(int postId, string username)
+    {
+        if (string.IsNullOrWhiteSpace(username))
+            throw new InvalidFieldsException("Username cannot be null or empty");
+        
+        var post = await repository.GetByIdAsync(postId);
+
+        if (post.Author.Username == username)
+            repository.DeleteAsync(post);
+        else
+            throw new UnauthorizedAccessException("Only the author of the post can access this feature");
+    }
+
     public async Task<PostDto> GetByIdAsync(int id)
     {
         if (id <= 0)

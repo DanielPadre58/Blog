@@ -4,6 +4,7 @@ using Blog.Domain.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blog.Migrations
 {
     [DbContext(typeof(BlogContext))]
-    partial class BlogContextModelSnapshot : ModelSnapshot
+    [Migration("20250731194244_AddedRealtionshipBeetwenCommentAndCommentType")]
+    partial class AddedRealtionshipBeetwenCommentAndCommentType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,6 +39,9 @@ namespace Blog.Migrations
                     b.Property<DateTime>("CommentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CommentTypeId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -52,18 +58,33 @@ namespace Blog.Migrations
                     b.Property<int?>("PostId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isReply")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("CommentTypeId");
 
                     b.HasIndex("ParentId");
 
                     b.HasIndex("PostId");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("Blog.Domain.Entities.CommentType", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
+
+                    b.HasKey("id");
+
+                    b.ToTable("CommentTypes");
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.Post", b =>
@@ -248,6 +269,12 @@ namespace Blog.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Blog.Domain.Entities.CommentType", "Type")
+                        .WithMany("Comments")
+                        .HasForeignKey("CommentTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Blog.Domain.Entities.Comment", "Parent")
                         .WithMany("Replies")
                         .HasForeignKey("ParentId")
@@ -263,6 +290,8 @@ namespace Blog.Migrations
                     b.Navigation("Parent");
 
                     b.Navigation("Post");
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.Post", b =>
@@ -354,6 +383,11 @@ namespace Blog.Migrations
             modelBuilder.Entity("Blog.Domain.Entities.Comment", b =>
                 {
                     b.Navigation("Replies");
+                });
+
+            modelBuilder.Entity("Blog.Domain.Entities.CommentType", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.Post", b =>

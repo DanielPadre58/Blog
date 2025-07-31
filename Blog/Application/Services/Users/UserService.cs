@@ -64,9 +64,6 @@ public class UserService(
         if (string.IsNullOrEmpty(refreshToken))
             throw new InvalidFieldsException("Refresh token is required.");
 
-        if (string.IsNullOrEmpty(username))
-            throw new InvalidFieldsException("Username is required.");
-
         var user = await repository.GetByUsernameAsync(username);
 
         await authenticationService.VerifyRefreshTokenAsync(username, refreshToken);
@@ -79,18 +76,29 @@ public class UserService(
         return new TokenDto(username, newToken, newRefreshToken);
     }
 
-    public async Task DeleteAsync(string username)
+    public async Task DeleteAsync(string username, string loggedUsername)
     {
+        var user = await repository.GetByUsernameAsync(username);
+        
+        if(user.Username != loggedUsername)
+            throw new UnauthorizedAccessException("Only the wanted user can access this feature");
+        
         await repository.DeleteAsync(username);
 
         await redisRepository.RemoveRefreshTokenAsync(username);
     }
 
-    public async Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser)
+    public async Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser, string loggedUsername)
     {
-        updatedUser.Validate();
-
+        if(updatedUser == null)
+            throw new InvalidFieldsException("User data cannot be null.");
+        
         var user = await repository.GetByUsernameAsync(username);
+        
+        if(user.Username != loggedUsername)
+            throw new UnauthorizedAccessException("Only the wanted user can access this feature");
+        
+        updatedUser.Validate();
         
         user.ChangeFirstName(updatedUser.FirstName);
         user.ChangeLastName(updatedUser.LastName);
@@ -122,119 +130,95 @@ public class UserService(
 
     public async Task<bool> LikeAsync(Post post, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-        
         if (post == null)
             throw new InvalidFieldsException("Post cannot be null");
 
         var user = await repository.GetByUsernameAsync(username);
         
-        user.LikePost(post);
+        user.Like(post);
         await repository.SaveAsync();
         
-        return user.LikedPost(post.Id);
+        return user.Liked<Post>(post.Id);
     }
     
     public async Task<bool> LikeAsync(Comment comment, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-        
         if (comment == null)
             throw new InvalidFieldsException("Comment cannot be null");
 
         var user = await repository.GetByUsernameAsync(username);
         
-        user.LikeComment(comment);
+        user.Like(comment);
         await repository.SaveAsync();
         
-        return user.LikedComment(comment.Id);
+        return user.Liked<Comment>(comment.Id);
     }
 
     public async Task<bool> DislikeAsync(Post post, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-        
         if (post == null)
             throw new InvalidFieldsException("Post cannot be null");
 
         var user = await repository.GetByUsernameAsync(username);
         
-        user.DislikePost(post);
+        user.Dislike(post);
         await repository.SaveAsync();
         
-        return user.DislikedPost(post.Id);
+        return user.Disliked<Post>(post.Id);
     }
     
     public async Task<bool> DislikeAsync(Comment comment, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-        
         if (comment == null)
             throw new InvalidFieldsException("Comment cannot be null");
 
         var user = await repository.GetByUsernameAsync(username);
         
-        user.DislikeComment(comment);
+        user.Dislike(comment);
         await repository.SaveAsync();
         
-        return user.DislikedComment(comment.Id);
+        return user.Disliked<Comment>(comment.Id);
     }
 
 
     public async Task<bool> UserLikedAsync(Post post, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-        
         if (post == null)
             throw new InvalidFieldsException("Post cannot be null");
         
         var user = await repository.GetByUsernameAsync(username);
 
-        return user.LikedPost(post.Id);
+        return user.Liked<Post>(post.Id);
     }
     
     public async Task<bool> UserLikedAsync(Comment comment, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-        
         if (comment == null)
             throw new InvalidFieldsException("Comment cannot be null");
         
         var user = await repository.GetByUsernameAsync(username);
 
-        return user.LikedComment(comment.Id);
+        return user.Liked<Comment>(comment.Id);
     }
 
     public async Task<bool> UserDislikedAsync(Post post, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-        
         if (post == null)
             throw new InvalidFieldsException("Post cannot be null");
         
         var user = await repository.GetByUsernameAsync(username);
 
-        return user.DislikedPost(post.Id);
+        return user.Disliked<Post>(post.Id);
     }
     
     public async Task<bool> UserDislikedAsync(Comment comment, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-        
         if (comment == null)
             throw new InvalidFieldsException("Comment cannot be null");
         
         var user = await repository.GetByUsernameAsync(username);
 
-        return user.DislikedComment(comment.Id);
+        return user.Disliked<Comment>(comment.Id);
     }
 
     private async Task SendVerificationEmailAsync(User user)

@@ -37,6 +37,33 @@ public class CommentsController(ICommentService service) : ControllerBase
         }
     }
     
+    [HttpDelete("{commentId}")]
+    [Authorize]
+    public async Task<ActionResult<ResponseModel<CommentDto>>> DeleteComment(int commentId)
+    {
+        var response = new ResponseModel<CommentDto>();
+        var loggedUsername = User.Identity?.Name;
+
+        try
+        {
+            await service.DeleteAsync(commentId, loggedUsername!);
+            response.SuccessResponse("Comment deleted successfully");
+            return Ok(response);
+        }
+        catch (InvalidFieldsException ex)
+        {
+            return BadRequest(response.ErrorResponse(ex.Message));
+        }
+        catch (NotFoundException ex)
+        {
+            return NotFound(response.ErrorResponse(ex.Message));
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, response.ErrorResponse(e.Message));
+        }
+    }
+    
     [HttpGet("{postId}")]
     [Authorize]
     public async Task<ActionResult<ResponseModel<List<CommentDto>>>> GetCommentsByPostId(int postId)

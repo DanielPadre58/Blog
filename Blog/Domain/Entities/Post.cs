@@ -28,23 +28,27 @@ public class Post
             throw new InvalidFieldsException("Content cannot be null or empty.");
     }
 
-    public void Like()
+    public void Like(User user)
     {
+        LikedByUsers.Add(user);
         Likes++;
     }
     
-    public void RemoveLike()
+    public void RemoveLike(User user)
     {
+        LikedByUsers.Remove(user);
         Likes--;
     }
     
-    public void Dislike()
+    public void Dislike(User user)
     {
+        DislikedByUsers.Add(user);
         Dislikes++;
     }
     
-    public void RemoveDislike()
+    public void RemoveDislike(User user)
     {
+        DislikedByUsers.Remove(user);
         Dislikes--;
     }
 }
