@@ -1,5 +1,4 @@
 ﻿using Blog.Application.Dtos.Authentication;
-using Blog.Application.Dtos.User;
 using Blog.Application.Dtos.Users;
 using Blog.Domain.Entities;
 

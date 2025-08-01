@@ -1,6 +1,4 @@
-﻿using Blog.Application.Dtos.User;
-
-namespace Blog.Application.Dtos.Users;
+﻿namespace Blog.Application.Dtos.Users;
 
 public record UserDto(
     int Id, 
@@ -16,9 +14,4 @@ public record UserDto(
         user.LastName,
         user.Birthday
     ){}
-    
-    public static List<UserDto> ToDtoList(List<Domain.Entities.User> users)
-    {
-        return users.Select(user => new UserDto(user)).ToList();
-    }
 }

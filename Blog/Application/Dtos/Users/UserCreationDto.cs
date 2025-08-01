@@ -1,4 +1,4 @@
-﻿namespace Blog.Application.Dtos.User;
+﻿namespace Blog.Application.Dtos.Users;
 
 public record UserCreationDto(
     string Username,
