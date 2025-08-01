@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Blog.Shared.Exceptions;
+using EmailValidation;
 
 namespace Blog.Domain.Entities;
 
@@ -97,6 +98,9 @@ public class User
     {
         if (string.IsNullOrWhiteSpace(email))
             throw new InvalidFieldsException("Email cannot be null or empty.", nameof(email));
+
+        if (!EmailValidator.Validate(email))
+            throw new InvalidFieldsException("Invalid email format");
     }
 
     private void ValidateUsername(string username)
