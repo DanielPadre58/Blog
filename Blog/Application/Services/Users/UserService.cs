@@ -7,6 +7,7 @@ using Blog.Domain.Repositories.Redis;
 using Blog.Domain.Repositories.Users;
 using Blog.Shared.Exceptions;
 using Blog.Shared.Security;
+using Blog.Shared.Validation;
 
 namespace Blog.Application.Services.Users;
 
@@ -16,7 +17,8 @@ public class UserService(
     ISmtpService smpt,
     IUnvalidatedUsersRepo unvalidatedUsersRepo,
     IAuthenticationService authenticationService,
-    IRedisRepo redisRepository) : IUserService
+    IRedisRepo redisRepository,
+    IValidator validator) : IUserService
 {
     public async Task<string> CreateAsync(UserCreationDto userDto)
     {
@@ -27,7 +29,7 @@ public class UserService(
 
         await ValidateEmailUniquenessAsync(userDto.Email);
 
-        var user = new User
+        var user = new User(validator)
         {
             Username = userDto.Username,
             Email = userDto.Email,

@@ -15,6 +15,7 @@ using Blog.Domain.Repositories.Tags;
 using Blog.Domain.Repositories.Users;
 using Blog.Shared.Background;
 using Blog.Shared.Security;
+using Blog.Shared.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -134,6 +135,7 @@ builder.Services.AddScoped<IRedisRepo, RedisRepo>();
 builder.Services.AddScoped<ITagRepo, TagRepo>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ICommentRepo, CommentRepo>();
+builder.Services.AddScoped<IValidator, Validator>();
 
 builder.Services.AddHostedService<ExpiredUsersCleaner>();
 
