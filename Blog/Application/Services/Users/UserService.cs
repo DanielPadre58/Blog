@@ -22,8 +22,7 @@ public class UserService(
 {
     public async Task<string> CreateAsync(UserCreationDto userDto)
     {
-        if (userDto == null)
-            throw new InvalidFieldsException("User data cannot be null.");
+        validator.NotNull(userDto, "User information");
         
         await ValidateUsernameUniquenessAsync(userDto.Username);
 
@@ -49,8 +48,7 @@ public class UserService(
 
     public async Task<TokenDto> LoginAsync(LoginDto loginData)
     {
-        if(loginData == null)
-            throw new InvalidFieldsException("Login data cannot be null.");
+        validator.NotNull(loginData, "Login information");
         
         loginData.Validate();
         
@@ -62,8 +60,7 @@ public class UserService(
     
     public async Task<TokenDto> RefreshAsync(string refreshToken, string username)
     {
-        if (string.IsNullOrEmpty(refreshToken))
-            throw new InvalidFieldsException("Refresh token is required.");
+        validator.NotNullOrEmpty(refreshToken, "Refresh token");
 
         var user = await repository.GetByUsernameAsync(username);
 
@@ -91,15 +88,12 @@ public class UserService(
 
     public async Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser, string loggedUsername)
     {
-        if(updatedUser == null)
-            throw new InvalidFieldsException("User data cannot be null.");
+        validator.NotNull(updatedUser, "Updated user information");
         
         var user = await repository.GetByUsernameAsync(username);
         
         if(user.Username != loggedUsername)
             throw new UnauthorizedAccessException("Only the wanted user can access this feature");
-        
-        updatedUser.Validate();
         
         user.ChangeFirstName(updatedUser.FirstName);
         user.ChangeLastName(updatedUser.LastName);
@@ -131,8 +125,7 @@ public class UserService(
 
     public async Task<bool> LikeAsync(Post post, string username)
     {
-        if (post == null)
-            throw new InvalidFieldsException("Post cannot be null");
+        validator.NotNull(post, "Post");
 
         var user = await repository.GetByUsernameAsync(username);
         
@@ -144,8 +137,7 @@ public class UserService(
     
     public async Task<bool> LikeAsync(Comment comment, string username)
     {
-        if (comment == null)
-            throw new InvalidFieldsException("Comment cannot be null");
+        validator.NotNull(comment, "Comment");
 
         var user = await repository.GetByUsernameAsync(username);
         
@@ -157,8 +149,7 @@ public class UserService(
 
     public async Task<bool> DislikeAsync(Post post, string username)
     {
-        if (post == null)
-            throw new InvalidFieldsException("Post cannot be null");
+        validator.NotNull(post, "Post");
 
         var user = await repository.GetByUsernameAsync(username);
         
@@ -170,8 +161,7 @@ public class UserService(
     
     public async Task<bool> DislikeAsync(Comment comment, string username)
     {
-        if (comment == null)
-            throw new InvalidFieldsException("Comment cannot be null");
+        validator.NotNull(comment, "Comment");
 
         var user = await repository.GetByUsernameAsync(username);
         
@@ -184,8 +174,7 @@ public class UserService(
 
     public async Task<bool> UserLikedAsync(Post post, string username)
     {
-        if (post == null)
-            throw new InvalidFieldsException("Post cannot be null");
+        validator.NotNull(post, "Post");
         
         var user = await repository.GetByUsernameAsync(username);
 
@@ -194,8 +183,7 @@ public class UserService(
     
     public async Task<bool> UserLikedAsync(Comment comment, string username)
     {
-        if (comment == null)
-            throw new InvalidFieldsException("Comment cannot be null");
+        validator.NotNull(comment, "Comment");
         
         var user = await repository.GetByUsernameAsync(username);
 
@@ -204,8 +192,7 @@ public class UserService(
 
     public async Task<bool> UserDislikedAsync(Post post, string username)
     {
-        if (post == null)
-            throw new InvalidFieldsException("Post cannot be null");
+        validator.NotNull(post, "Post");
         
         var user = await repository.GetByUsernameAsync(username);
 
@@ -214,8 +201,7 @@ public class UserService(
     
     public async Task<bool> UserDislikedAsync(Comment comment, string username)
     {
-        if (comment == null)
-            throw new InvalidFieldsException("Comment cannot be null");
+        validator.NotNull(comment, "Comment");
         
         var user = await repository.GetByUsernameAsync(username);
 

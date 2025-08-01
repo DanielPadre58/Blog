@@ -4,23 +4,24 @@ using Blog.Application.Services.Users;
 using Blog.Domain.Entities;
 using Blog.Domain.Repositories.Comments;
 using Blog.Shared.Exceptions;
+using Blog.Shared.Validation;
 
 namespace Blog.Application.Services.Comments;
 
 public class CommentService(
     ICommentRepo repository,
     IUserService userService,
-    IPostService postService) : ICommentService
+    IPostService postService,
+    IValidator validator) : ICommentService
 {
     public async Task<CommentDto> CreateAsync(CommentCreationDto dto, string authorUsername)
     {
-        if (dto == null)
-            throw new InvalidFieldsException("Comment creation data cannot be null.");
+        validator.NotNull(dto, "Comment information");
 
         if (dto.parentId == null && dto.postId == null)
             throw new InvalidFieldsException("A comment must have either a Post ID or a Parent Comment ID.");
 
-        if (dto.parentId != null && dto.postId != null)
+        if (dto is { parentId: not null, postId: not null })
             throw new InvalidFieldsException("A comment cannot be both a reply and a top-level comment.");
 
         var author = await userService.GetByUsernameAsync(authorUsername);
@@ -54,8 +55,7 @@ public class CommentService(
 
     public async Task<List<CommentDto>> GetByPostAsync(int postId, string username)
     {
-        if (postId <= 0)
-            throw new InvalidFieldsException("Invalid post ID");
+        validator.ValidId(postId, "Post id");
 
         await postService.GetByIdAsync(postId);
 
@@ -75,8 +75,7 @@ public class CommentService(
 
     public async Task<List<CommentDto>> GetByParentAsync(int parentId, string username)
     {
-        if (parentId <= 0)
-            throw new InvalidFieldsException("Invalid post ID");
+        validator.ValidId(parentId, "Parent id");
 
         await repository.GetByIdAsync(parentId);
 
@@ -96,11 +95,7 @@ public class CommentService(
 
     public async Task<CommentDto> LikeCommentAsync(int id, string username)
     {
-        if (id <= 0)
-            throw new InvalidFieldsException("Invalid comment ID");
-
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
+        validator.ValidId(id, "Post id");
 
         var comment = await repository.GetByIdAsync(id);
         var liked = await userService.LikeAsync(comment, username);
@@ -110,12 +105,8 @@ public class CommentService(
 
     public async Task<CommentDto> DislikeCommentAsync(int id, string username)
     {
-        if (id <= 0)
-            throw new InvalidFieldsException("Invalid comment ID");
-
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-
+        validator.ValidId(id, "Post id");
+        
         var comment = await repository.GetByIdAsync(id);
         var disliked = await userService.DislikeAsync(comment, username);
 

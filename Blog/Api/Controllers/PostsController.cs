@@ -100,7 +100,7 @@ public class PostsController(IPostService service) : ControllerBase
     [Authorize]
     public async Task<ActionResult<ResponseModel<PostDto>>> GetAllPosts(
         [FromQuery] PostsPaginationDto pageInfo, 
-        [FromQuery] PostFilter filter = PostFilter.TITLE)
+        [FromQuery] PostFilter filter = PostFilter.NONE)
     {
         var response = new ResponseModel<PostDto>();
         var username = User.Identity?.Name;

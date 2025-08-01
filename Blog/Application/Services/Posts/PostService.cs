@@ -5,18 +5,19 @@ using Blog.Domain.Enums;
 using Blog.Domain.Repositories.Posts;
 using Blog.Domain.Repositories.Tags;
 using Blog.Shared.Exceptions;
+using Blog.Shared.Validation;
 
 namespace Blog.Application.Services.Posts;
 
 public class PostService(
     IPostRepo repository,
     ITagRepo tagRepo,
-    IUserService userService) : IPostService
+    IUserService userService,
+    IValidator validator) : IPostService
 {
     public async Task<PostDto> CreateAsync(PostCreationDto dto, string authorUsername)
     {
-        if (dto == null)
-            throw new InvalidFieldsException("Post creation data cannot be null");
+        validator.NotNull(dto, "Post information");
 
         var author = await userService.GetByUsernameAsync(authorUsername);
 
@@ -39,21 +40,20 @@ public class PostService(
 
     public async Task DeleteAsync(int postId, string username)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
+        validator.ValidId(postId, "Post id");
+        validator.NotNullOrEmpty(username, "Username");
         
         var post = await repository.GetByIdAsync(postId);
 
         if (post.Author.Username == username)
-            repository.DeleteAsync(post);
+            await repository.DeleteAsync(post);
         else
             throw new UnauthorizedAccessException("Only the author of the post can access this feature");
     }
 
     public async Task<PostDto> GetByIdAsync(int id)
     {
-        if (id <= 0)
-            throw new InvalidFieldsException("Invalid post ID");
+        validator.ValidId(id, "Post Id");
 
         var post = await repository.GetByIdAsync(id);
 
@@ -62,8 +62,7 @@ public class PostService(
 
     public async Task<List<PostDto>> GetAllAsync(PostsPaginationDto pageInfo, PostFilter filter, string username)
     {
-        if (pageInfo == null)
-            throw new InvalidFieldsException("Please provide pagination information");
+        validator.NotNull(pageInfo, "Page info");
 
         List<Post> posts;
 
@@ -121,11 +120,8 @@ public class PostService(
 
     public async Task<PostDto> LikePostAsync(int id, string username)
     {
-        if (id <= 0)
-            throw new InvalidFieldsException("Invalid post ID");
-
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
+        validator.ValidId(id, "Post Id");
+        validator.NotNullOrEmpty(username, "Username");
 
         var post = await repository.GetByIdAsync(id);
         var liked = await userService.LikeAsync(post, username);
@@ -135,11 +131,8 @@ public class PostService(
 
     public async Task<PostDto> DislikePostAsync(int id, string username)
     {
-        if (id <= 0)
-            throw new InvalidFieldsException("Invalid post ID");
-
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
+        validator.ValidId(id, "Post Id");
+        validator.NotNullOrEmpty(username, "Username");
 
         var post = await repository.GetByIdAsync(id);
         var disliked = await userService.DislikeAsync(post, username);
@@ -149,11 +142,8 @@ public class PostService(
 
     public async Task<List<PostDto>> GetByUsernameAsync(string username, PageInfo pageInfo, UserPostsFilter filter)
     {
-        if (string.IsNullOrWhiteSpace(username))
-            throw new InvalidFieldsException("Username cannot be null or empty");
-
-        if (pageInfo == null)
-            throw new InvalidFieldsException("Please provide pagination information");
+        validator.NotNullOrEmpty(username, "Username");
+        validator.NotNull(pageInfo, "Pagination information");
 
         List<Post> posts;
         
