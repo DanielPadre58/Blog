@@ -136,6 +136,7 @@ builder.Services.AddScoped<ITagRepo, TagRepo>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<ICommentRepo, CommentRepo>();
 builder.Services.AddScoped<IValidator, Validator>();
+builder.Services.AddScoped<User>();
 
 builder.Services.AddHostedService<ExpiredUsersCleaner>();
 

@@ -6,7 +6,7 @@ using EmailValidation;
 
 namespace Blog.Domain.Entities;
 
-public class User(IValidator validator)
+public class User
 {
     public int Id { get; set; }
     public bool IsVerified { get; set; }
@@ -23,13 +23,23 @@ public class User(IValidator validator)
     [JsonIgnore] public ICollection<Post>? DislikedPosts { get; set; } = new List<Post>();
     [JsonIgnore] public ICollection<Comment>? LikedComments { get; set; } = new List<Comment>();
     [JsonIgnore] public ICollection<Comment>? DislikedComments { get; set; } = new List<Comment>();
+    [JsonIgnore] private  readonly IValidator _validator;
+
+    private User()
+    {
+    }
+
+    public User(IValidator validator)
+    {
+        _validator = validator;
+    }
 
     public void ChangeUsername(string? username)
     {
         if (username == null)
             return;
 
-        validator.NotNullOrEmpty(username, nameof(username));
+        _validator.NotNullOrEmpty(username, nameof(username));
         Username = username;
     }
 
@@ -38,7 +48,7 @@ public class User(IValidator validator)
         if (name == null)
             return;
 
-        validator.NotNullOrEmpty(name, nameof(name));
+        _validator.NotNullOrEmpty(name, nameof(name));
         FirstName = name;
     }
 
@@ -47,7 +57,7 @@ public class User(IValidator validator)
         if (name == null)
             return;
 
-        validator.NotNullOrEmpty(name, nameof(name));
+        _validator.NotNullOrEmpty(name, nameof(name));
         LastName = name;
     }
 
@@ -56,7 +66,7 @@ public class User(IValidator validator)
         if (!birthday.HasValue)
             return;
 
-        validator.BeforeToday(birthday.Value, nameof(Birthday));
+        _validator.BeforeToday(birthday.Value, nameof(Birthday));
         Birthday = birthday;
     }
 
@@ -67,19 +77,19 @@ public class User(IValidator validator)
 
     public void Validate()
     {
-        validator.NotNullOrEmpty(Username, nameof(Username));
-        validator.ValidEmail(Email, nameof(Email));
-        validator.ValidPassword(Password, nameof(Password));
+        _validator.NotNullOrEmpty(Username, nameof(Username));
+        _validator.ValidEmail(Email, nameof(Email));
+        _validator.ValidPassword(Password, nameof(Password));
         if (FirstName != null)
-            validator.NotNullOrEmpty(FirstName, nameof(FirstName));
+            _validator.NotNullOrEmpty(FirstName, nameof(FirstName));
 
         if (LastName != null)
-            validator.NotNullOrEmpty(LastName, nameof(LastName));
+            _validator.NotNullOrEmpty(LastName, nameof(LastName));
 
         if (Birthday.HasValue)
         {
-            validator.BeforeToday(Birthday.Value, nameof(Birthday));
-            validator.OlderThan(Birthday.Value, 16, nameof(Birthday));
+            _validator.BeforeToday(Birthday.Value, nameof(Birthday));
+            _validator.OlderThan(Birthday.Value, 16, nameof(Birthday));
         }
     }
 

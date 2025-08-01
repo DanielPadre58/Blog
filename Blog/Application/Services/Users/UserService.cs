@@ -34,6 +34,8 @@ public class UserService(
             Email = userDto.Email,
             Password = string.Empty
         };
+        
+        validator.ValidPassword(userDto.Password, "Password");
 
         user.Password = hasher.HashPassword(user, userDto.Password);
 
