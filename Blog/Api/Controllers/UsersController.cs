@@ -103,7 +103,7 @@ public class UsersController(IUserService service) : ControllerBase
 
         try
         {
-            await service.DeleteAsync(username, loggedUsername);
+            await service.DeleteAsync(username, loggedUsername!);
             response.SuccessResponse("User deleted successfully");
             return Ok(response);
         }
@@ -130,7 +130,7 @@ public class UsersController(IUserService service) : ControllerBase
 
         try
         {
-            var user = await service.EditAsync(username, updatedUser, loggedUsername);
+            var user = await service.EditAsync(username, updatedUser, loggedUsername!);
             response.SuccessResponse("User edited successfully", user);
             return Ok(response);
         }

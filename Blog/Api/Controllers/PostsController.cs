@@ -47,7 +47,7 @@ public class PostsController(IPostService service) : ControllerBase
 
         try
         {
-            await service.DeleteAsync(postId, username);
+            await service.DeleteAsync(postId, username!);
             response.SuccessResponse("Post Deleted successfully");
             return Ok(response);
         }
@@ -102,7 +102,7 @@ public class PostsController(IPostService service) : ControllerBase
         [FromQuery] PostsPaginationDto pageInfo, 
         [FromQuery] PostFilter filter = PostFilter.NONE)
     {
-        var response = new ResponseModel<PostDto>();
+        var response = new ResponseModel<List<PostDto>>();
         var username = User.Identity?.Name;
 
         try
@@ -183,7 +183,7 @@ public class PostsController(IPostService service) : ControllerBase
         [FromQuery] PageInfo pageInfo,
         [FromQuery] UserPostsFilter filter = UserPostsFilter.MINE)
     {
-        var response = new ResponseModel<PostDto>();
+        var response = new ResponseModel<List<PostDto>>();
 
         try
         {

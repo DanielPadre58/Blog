@@ -4,7 +4,7 @@ public class ResponseModel<T>
 {
     public bool Success { get; set; }
     public string? Message { get; set; }
-    public ICollection<T> Data { get; set; } = new List<T>();
+    public T Data { get; set; }
     
     public ResponseModel<T> SuccessResponse(string message)
     {
@@ -17,15 +17,7 @@ public class ResponseModel<T>
     {
         Success = true;
         Message = message;
-        Data.Add(data);
-        return this;
-    }
-    
-    public ResponseModel<T> SuccessResponse(string message, ICollection<T> data)
-    {
-        Success = true;
-        Message = message;
-        Data = data;
+        Data = (data);
         return this;
     }
     
