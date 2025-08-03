@@ -152,6 +152,14 @@ public class UsersController(IUserService service) : ControllerBase
         }
     }
 
+    [HttpGet]
+    [Authorize]
+    public async Task<ActionResult<ResponseModel<UserDto>>> GetUser()
+    {
+        var loggedUsername = User.Identity?.Name;
+        return await GetUser(loggedUsername);
+    }
+
     [HttpGet("{username}")]
     [Authorize]
     public async Task<ActionResult<ResponseModel<UserDto>>> GetUser(string username)
