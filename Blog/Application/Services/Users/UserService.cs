@@ -76,26 +76,18 @@ public class UserService(
         return new TokenDto(username, newToken, newRefreshToken);
     }
 
-    public async Task DeleteAsync(string username, string loggedUsername)
+    public async Task DeleteAsync(string loggedUsername)
     {
-        var user = await repository.GetByUsernameAsync(username);
-        
-        if(user.Username != loggedUsername)
-            throw new UnauthorizedAccessException("Only the wanted user can access this feature");
-        
-        await repository.DeleteAsync(username);
+        await repository.DeleteAsync(loggedUsername);
 
-        await redisRepository.RemoveRefreshTokenAsync(username);
+        await redisRepository.RemoveRefreshTokenAsync(loggedUsername);
     }
 
-    public async Task<UserDto> EditAsync(string username, UserUpdateDto updatedUser, string loggedUsername)
+    public async Task<UserDto> EditAsync(UserUpdateDto updatedUser, string loggedUsername)
     {
         validator.NotNull(updatedUser, "Updated user information");
         
-        var user = await repository.GetByUsernameAsync(username);
-        
-        if(user.Username != loggedUsername)
-            throw new UnauthorizedAccessException("Only the wanted user can access this feature");
+        var user = await repository.GetByUsernameAsync(loggedUsername);
         
         user.ChangeFirstName(updatedUser.FirstName);
         user.ChangeLastName(updatedUser.LastName);

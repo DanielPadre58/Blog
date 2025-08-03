@@ -94,16 +94,16 @@ public class UsersController(IUserService service) : ControllerBase
         }
     }
 
-    [HttpDelete("{username}")]
+    [HttpDelete]
     [Authorize]
-    public async Task<ActionResult<ResponseModel<UserDto>>> DeleteUser(string username)
+    public async Task<ActionResult<ResponseModel<UserDto>>> DeleteUser()
     {
         var response = new ResponseModel<UserDto>();
         var loggedUsername = User.Identity?.Name;
 
         try
         {
-            await service.DeleteAsync(username, loggedUsername!);
+            await service.DeleteAsync(loggedUsername!);
             response.SuccessResponse("User deleted successfully");
             return Ok(response);
         }
@@ -121,16 +121,16 @@ public class UsersController(IUserService service) : ControllerBase
         }
     }
 
-    [HttpPut("{username}")]
+    [HttpPut]
     [Authorize]
-    public async Task<ActionResult<ResponseModel<UserDto>>> EditUser(string username, [FromBody] UserUpdateDto updatedUser)
+    public async Task<ActionResult<ResponseModel<UserDto>>> EditUser([FromBody] UserUpdateDto updatedUser)
     {
         var response = new ResponseModel<UserDto>();
         var loggedUsername = User.Identity?.Name;
 
         try
         {
-            var user = await service.EditAsync(username, updatedUser, loggedUsername!);
+            var user = await service.EditAsync(updatedUser, loggedUsername!);
             response.SuccessResponse("User edited successfully", user);
             return Ok(response);
         }
