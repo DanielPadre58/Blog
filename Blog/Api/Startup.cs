@@ -1,6 +1,6 @@
 using System.Text;
-using Blog.Application.Dtos.Posts;
 using Blog.Application.External_Services;
+using Blog.Application.External_Services.Smtp;
 using Blog.Application.Services.Authentication;
 using Blog.Application.Services.Comments;
 using Blog.Application.Services.Posts;
@@ -21,7 +21,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using Resend;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -111,7 +110,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Console.WriteLine($"Authentication failed: {context.Exception.Message}");
                 return Task.CompletedTask;
             },
-            OnTokenValidated = context =>
+            OnTokenValidated = (context) =>
             {
                 Console.WriteLine("Token validated successfully.");
                 return Task.CompletedTask;
@@ -123,14 +122,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
-
-builder.Services.AddOptions();
-builder.Services.AddHttpClient<ResendClient>();
-builder.Services.Configure<ResendClientOptions>( o =>
-{
-    o.ApiToken = builder.Configuration["Resend:Token"];
-} );
-builder.Services.AddTransient<IResend, ResendClient>();
 
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();
