@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using Resend;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -123,12 +124,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>( o =>
+{
+    o.ApiToken = builder.Configuration["Resend:Token"];
+} );
+builder.Services.AddTransient<IResend, ResendClient>();
+
 builder.Services.AddScoped<IUserRepo, UserRepo>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostRepo, PostRepo>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-builder.Services.AddScoped<ISmtpService, SmtpService>();
+builder.Services.AddScoped<ISmptService, SmptService>();
 builder.Services.AddScoped<IUnvalidatedUsersRepo, UnvalidatedUsersRepo>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IRedisRepo, RedisRepo>();

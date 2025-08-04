@@ -14,7 +14,7 @@ namespace Blog.Application.Services.Users;
 public class UserService(
     IUserRepo repository,
     IPasswordHasher hasher,
-    ISmtpService smpt,
+    ISmptService smpt,
     IUnvalidatedUsersRepo unvalidatedUsersRepo,
     IAuthenticationService authenticationService,
     IRedisRepo redisRepository,
