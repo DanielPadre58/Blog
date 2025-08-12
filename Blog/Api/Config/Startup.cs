@@ -1,4 +1,5 @@
 using System.Text;
+using Blog.Api.Config;
 using Blog.Application.External_Services;
 using Blog.Application.External_Services.Smtp;
 using Blog.Application.Services.Authentication;
@@ -21,7 +22,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,11 +81,6 @@ builder.Services.AddDbContext<BlogContext>(options =>
                              "Missing configuration: Default database connection string"));
 });
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(opt =>
-    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("DockerRedisConnection") ??
-                                  throw new InvalidOperationException(
-                                      "Missing configuration: Redis database connection string")));
-
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -123,20 +118,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddScoped<IUserRepo, UserRepo>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPostRepo, PostRepo>();
-builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-builder.Services.AddScoped<ISmptService, SmptService>();
-builder.Services.AddScoped<IUnvalidatedUsersRepo, UnvalidatedUsersRepo>();
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IRedisRepo, RedisRepo>();
-builder.Services.AddScoped<ITagRepo, TagRepo>();
-builder.Services.AddScoped<ICommentService, CommentService>();
-builder.Services.AddScoped<ICommentRepo, CommentRepo>();
-builder.Services.AddScoped<IValidator, Validator>();
-builder.Services.AddScoped<User>();
+var dependencyInjector = new DependencyInjector(builder.Services, builder.Configuration);
 
 builder.Services.AddHostedService<ExpiredUsersCleaner>();
 
